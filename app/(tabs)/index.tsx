@@ -1,21 +1,31 @@
-import {Image, StyleSheet, Platform, View, Text} from 'react-native';
+import { StyleSheet, View, Pressable } from 'react-native';
 
-import {useThemeColors} from "@/hooks/useThemeColors";
-import {BackgroundView} from "@/components/styleComponent/BackgroundView";
+import { ThemeToggleButton } from '@/components/ThemeToggleButton';
+import { BackgroundView } from '@/components/styleComponent/BackgroundView';
+import { ThemedText } from '@/components/styleComponent/ThemedText';
 
 export default function HomeScreen() {
-  const { background } = useThemeColors();
+	const styles = StyleSheet.create({
+		titleContainer: {
+			padding: 20
+		}
+	});
 
-  const styles = StyleSheet.create({
-    titleContainer: {
-      padding: 20,
-      height: '100%'
-    }
-  });
-
-  return (
-      <BackgroundView >
-        <Text style = {[styles.titleContainer]}> il</Text>
-      </BackgroundView>
-  );
+	return (
+		<BackgroundView>
+			<ThemedText style={[styles.titleContainer]}> mihail</ThemedText>
+			<ThemedText style={[styles.titleContainer]}> mihail2</ThemedText>
+			<ThemedText style={[styles.titleContainer]}> mihail3</ThemedText>
+			<View>
+				<Pressable
+					onPress={() => {
+						console.log('miha');
+					}}
+				>
+          <ThemedText>mihail tik</ThemedText>
+				</Pressable>
+			</View>
+			<ThemeToggleButton />
+		</BackgroundView>
+	);
 }
