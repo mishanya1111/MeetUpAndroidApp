@@ -53,9 +53,9 @@ export default function TabLayout() {
 				}}
 			/>
 			<Tabs.Screen
-				name="explore"
+				name="SignIn"
 				options={{
-					title: 'Explore',
+					title: 'signIn',
 					tabBarIcon: () => (
 						<Image
 							source={require('@/assets/icons/favorite.png')}

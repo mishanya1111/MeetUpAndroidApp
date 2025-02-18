@@ -1,4 +1,5 @@
 export const BASE = '';
+export const AUTH = BASE + '/auth';
 /*
 export const MY_MEETUPS = BASE + '/my-meetups';
 export const MY_MEETUPS_SUBSCRIBER = MY_MEETUPS + '/subscriber';
@@ -11,3 +12,5 @@ export const CREATE_MEETUPS = BASE + '/create';
 export const USERS_DETAIL = BASE + '/users';
 */
 export const MEETUP_DETAILS = BASE + '/meetup-details';
+export const SIGN_IN = BASE + '/SignIn';
+export const SIGN_UP = BASE + '/SignUp';

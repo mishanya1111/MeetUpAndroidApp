@@ -1,7 +1,7 @@
 export const Colors = {
 	dark: {
 		background: '#0d1117',
-		headerFooter: '#151b23',
+		headerFooter: '#26445e', //#151b23
 		text: '#fff',
 		description: '#afafaf',
 		buttonBg: '#151b23',
@@ -24,3 +24,4 @@ export const Colors = {
 		activeTabs: 'gray'
 	}
 };
+export const BUTTON_TEXT = '#fff';

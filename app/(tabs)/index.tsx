@@ -4,13 +4,11 @@ import { ThemeToggleButton } from '@/components/ThemeToggleButton';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
 import MeetupCard from '@/components/MeetupCard';
 import { useMeetups } from '@/hooks/useMeetups';
-import { FilterBar } from '@/components/FilterBar';
+import FilterBar from '@/components/FilterBar';
 
-interface HomeScreenProps {
-	navigation: any;
-}
 
-export default function HomeScreen({ navigation }: HomeScreenProps) {
+
+export default function HomeScreen() {
 	const {
 		meetups,
 		loading,
