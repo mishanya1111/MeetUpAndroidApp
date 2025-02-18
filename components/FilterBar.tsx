@@ -1,14 +1,9 @@
 import React, { useState } from 'react';
-import {
-	View,
-	TextInput,
-	Button,
-	TouchableOpacity,
-	StyleSheet,
-	Text
-} from 'react-native';
-import DatePicker from 'react-native-date-picker'; // Импортируем компонент
+import { View, TextInput, TouchableOpacity, StyleSheet, Text } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Feather } from '@expo/vector-icons';
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { BUTTON_TEXT } from '@/constant/Colors';
 
 interface FilterBarProps {
 	onSearchChange: (query: string) => void;
@@ -27,6 +22,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 	const [endDate, setEndDate] = useState<Date | null>(null);
 	const [showStartPicker, setShowStartPicker] = useState(false);
 	const [showEndPicker, setShowEndPicker] = useState(false);
+	const { headerFooter, text, buttonBorder, buttonBg } = useThemeColors();
 
 	const handleApplyFilters = () => {
 		onSearchChange(searchQuery);
@@ -37,44 +33,99 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 		onApplyFilters();
 	};
 
+	const renderDatePicker = (pickerType: 'start' | 'end') => {
+		const isStartPicker = pickerType === 'start';
+		return (
+			<DateTimePicker
+				value={isStartPicker ? startDate || new Date() : endDate || new Date()}
+				mode="date"
+				display="default"
+				onChange={(event, selectedDate) => {
+					if (selectedDate) {
+						isStartPicker ? setStartDate(selectedDate) : setEndDate(selectedDate);
+					}
+					isStartPicker ? setShowStartPicker(false) : setShowEndPicker(false);
+				}}
+			/>
+		);
+	};
+
+	const styles = StyleSheet.create({
+		filterBar: {
+			padding: 20,
+			gap: 20,
+			marginBottom: 20
+		},
+		searchContainer: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: 20
+		},
+		iconButton: {
+			padding: 8
+		},
+		dateFilters: {
+			flexDirection: 'row',
+			justifyContent: 'space-between',
+			marginVertical: 10
+		},
+		dateButton: {
+			flex: 1,
+			marginHorizontal: 5
+		},
+		dateInput: {
+			padding: 8,
+			borderWidth: 1,
+			borderColor: buttonBorder,
+			borderRadius: 50,
+			textAlign: 'center'
+		},
+		buttonApply: {
+			backgroundColor: buttonBg,
+			borderWidth: 1,
+			borderColor: buttonBorder,
+			borderRadius: 50,
+			textAlign: 'center'
+		},
+		buttonApplyText: {
+			padding: 8,
+			color: BUTTON_TEXT,
+			textAlign: 'center'
+		}
+	});
 	return (
-		<View style={styles.filterBar}>
-			{/* Поле поиска + иконка календаря */}
-			<View style={styles.searchContainer}>
+		<View style={[styles.filterBar, { backgroundColor: headerFooter }]}>
+			<View style={[styles.searchContainer]}>
 				<TextInput
-					style={styles.searchInput}
+					style={{
+						flex: 1,
+						padding: 8,
+						borderWidth: 1,
+						borderColor: buttonBorder,
+						borderRadius: 50
+					}}
 					placeholder="Search meetups..."
+					placeholderTextColor={text}
 					value={searchQuery}
 					onChangeText={setSearchQuery}
 				/>
 				<TouchableOpacity
 					onPress={() => setShowDateFilters(!showDateFilters)}
-					style={styles.iconButton}
+					style={[styles.iconButton]}
 				>
-					<Feather name="calendar" size={20} color="black" />
+					<Feather name="calendar" size={20} color={text} />
 				</TouchableOpacity>
 			</View>
 
-			{/* Фильтр по датам с выводом выбранных дат */}
 			{showDateFilters && (
 				<View style={styles.dateFilters}>
-					<View style={styles.dateDisplay}>
-						<Text style={styles.dateText}>
-							{startDate
-								? `Start: ${startDate.toISOString().split('T')[0]}`
-								: 'Start Date'}
-						</Text>
-						<Text style={styles.dateText}>
-							{endDate ? `End: ${endDate.toISOString().split('T')[0]}` : 'End Date'}
-						</Text>
-					</View>
-
 					<TouchableOpacity
 						onPress={() => setShowStartPicker(true)}
 						style={styles.dateButton}
 					>
 						<TextInput
 							style={styles.dateInput}
+							placeholderTextColor={text}
 							placeholder="Start Date"
 							value={startDate ? startDate.toISOString().split('T')[0] : ''}
 							editable={false}
@@ -87,6 +138,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 					>
 						<TextInput
 							style={styles.dateInput}
+							placeholderTextColor={text}
 							placeholder="End Date"
 							value={endDate ? endDate.toISOString().split('T')[0] : ''}
 							editable={false}
@@ -95,81 +147,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 				</View>
 			)}
 
-			{/* Кнопка применения фильтров */}
-			<Button title="Apply Filters" onPress={handleApplyFilters} />
-
-			{/* Выбор даты с использованием react-native-date-picker */}
-			{showStartPicker && (
-				<DatePicker
-					modal
-					open={showStartPicker}
-					date={startDate || new Date()}
-					onConfirm={selectedDate => {
-						setStartDate(selectedDate);
-						setShowStartPicker(false);
-					}}
-					onCancel={() => setShowStartPicker(false)}
-				/>
-			)}
-			{showEndPicker && (
-				<DatePicker
-					modal
-					open={showEndPicker}
-					date={endDate || new Date()}
-					onConfirm={selectedDate => {
-						setEndDate(selectedDate);
-						setShowEndPicker(false);
-					}}
-					onCancel={() => setShowEndPicker(false)}
-				/>
-			)}
+			{/*<Button title="Apply Filters" onPress={handleApplyFilters} />*/}
+			<TouchableOpacity onPress={handleApplyFilters} style={styles.buttonApply}>
+				<Text style={styles.buttonApplyText}> Apply Filters </Text>
+			</TouchableOpacity>
+			{showStartPicker && renderDatePicker('start')}
+			{showEndPicker && renderDatePicker('end')}
 		</View>
 	);
 };
-
-const styles = StyleSheet.create({
-	filterBar: {
-		padding: 10
-	},
-	searchContainer: {
-		flexDirection: 'row',
-		alignItems: 'center'
-	},
-	searchInput: {
-		flex: 1,
-		padding: 8,
-		borderWidth: 1,
-		borderColor: '#ccc',
-		borderRadius: 4
-	},
-	iconButton: {
-		padding: 8
-	},
-	dateFilters: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		marginVertical: 10
-	},
-	dateDisplay: {
-		flexDirection: 'column',
-		justifyContent: 'center'
-	},
-	dateText: {
-		fontSize: 14,
-		color: '#333',
-		marginBottom: 5
-	},
-	dateButton: {
-		flex: 1,
-		marginHorizontal: 5
-	},
-	dateInput: {
-		padding: 8,
-		borderWidth: 1,
-		borderColor: '#ccc',
-		borderRadius: 4,
-		textAlign: 'center'
-	}
-});
 
 export default FilterBar;
