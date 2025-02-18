@@ -1,5 +1,5 @@
 import { useTheme } from '@/context/ThemeContext';
-import { Colors } from '@/constants/Colors';
+import { Colors } from '@/constant/Colors';
 
 export function useThemeColors() {
 	const { theme } = useTheme();

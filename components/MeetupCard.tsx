@@ -15,12 +15,12 @@ interface MeetupCardProps {
 const MeetupCard = memo(
 	({ title, description, image, dateTime, to }: MeetupCardProps) => {
 		const router = useRouter();
-		const { headerFooter, text, description: descriptionColor } = useThemeColors();
+		const { headerFooter, description: descriptionColor } = useThemeColors();
 
 		const date = new Date(dateTime);
 		const formattedDate = `${date.getUTCDate()}.${date.getUTCMonth() + 1}.${date.getUTCFullYear()}`;
 
-		//Оно работает не трогай пока(to)
+		//Оно работает не трогай пока (to)
 		return (
 			<Pressable
 				onPress={() => router.push(to)}
