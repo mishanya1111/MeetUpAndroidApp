@@ -6,20 +6,12 @@ import { useRouter } from 'expo-router';
 import { SIGN_IN } from '@/constant/router';
 import {useAuth} from "@/context/AuthContext";
 
-export default function Profile() {
-	const router = useRouter();
+export default function MyMeetups() {
 	const {name} = useAuth();
 	return (
 		<BackgroundView>
-			<ThemedText style={[styles.titleContainer]}> Profile</ThemedText>
+			<ThemedText style={[styles.titleContainer]}> My meetups</ThemedText>
 			<ThemeToggleButton />
-			<TouchableOpacity
-				onPress={() => {
-					router.push(SIGN_IN);
-				}}
-			>
-				<ThemedText>Login IN</ThemedText>
-			</TouchableOpacity>
 
 			<ThemedText> {name}</ThemedText>
 		</BackgroundView>
