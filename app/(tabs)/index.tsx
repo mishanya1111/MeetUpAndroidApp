@@ -6,8 +6,6 @@ import MeetupCard from '@/components/MeetupCard';
 import { useMeetups } from '@/hooks/useMeetups';
 import FilterBar from '@/components/FilterBar';
 
-
-
 export default function HomeScreen() {
 	const {
 		meetups,
