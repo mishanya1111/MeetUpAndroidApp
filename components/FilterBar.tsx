@@ -25,6 +25,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 	const { headerFooter, text, buttonBorder, buttonBg } = useThemeColors();
 
 	const handleApplyFilters = () => {
+		console.log('on apply: ' + 'start: ' + startDate + 'endDate' + endDate);
 		onSearchChange(searchQuery);
 		onDateFilter(
 			startDate ? startDate.toISOString().split('T')[0] : '',
@@ -40,9 +41,17 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 				value={isStartPicker ? startDate || new Date() : endDate || new Date()}
 				mode="date"
 				display="default"
+				//timeZoneOffsetInMinutes={180}
 				onChange={(event, selectedDate) => {
-					if (selectedDate) {
-						isStartPicker ? setStartDate(selectedDate) : setEndDate(selectedDate);
+					console.log(event);
+					console.log(selectedDate);
+					if (event.type === 'dismissed') {
+						isStartPicker ? setStartDate(null) : setEndDate(null);
+						console.log('new:' + startDate);
+					} else if (selectedDate) {
+						const localDate = new Date(selectedDate.getTime() + 3 * 60 * 60 * 1000); // +3 часа
+						console.log(localDate);
+						isStartPicker ? setStartDate(localDate) : setEndDate(localDate);
 					}
 					isStartPicker ? setShowStartPicker(false) : setShowEndPicker(false);
 				}}

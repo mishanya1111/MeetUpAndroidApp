@@ -25,7 +25,8 @@ export const useSignUp = () => {
 			console.log('Registration successful');
 			router.push(SIGN_IN);
 		} catch (error) {
-			setErrorMessage('Registration failed. Please try again.');
+			console.log(error.toString());
+			setErrorMessage(error.response?.data?.username[0]);
 		} finally {
 			setIsPending(false);
 		}

@@ -19,7 +19,6 @@ const MeetupCard = memo(
 
 		const date = new Date(dateTime);
 		const formattedDate = `${date.getUTCDate()}.${date.getUTCMonth() + 1}.${date.getUTCFullYear()}`;
-
 		//Оно работает не трогай пока (to)
 		return (
 			<Pressable

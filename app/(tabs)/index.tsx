@@ -2,8 +2,9 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { ThemeToggleButton } from '@/components/ThemeToggleButton';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
-import axios from "axios";
-import DataLoader from '@/components/DataLoader/DataLoader'
+import axios from 'axios';
+import DataLoader from '@/components/DataLoader/DataLoader';
+import { MEETINGS_API_URL } from '@/constant/apiURL';
 
 export default function HomeScreen() {
 	/*const {
@@ -15,10 +16,12 @@ export default function HomeScreen() {
 		applyFilters
 	} = useMeetups();*/
 	//fetchFunction
-	const fetchWithToken = async (url: string) => {
-		const response = await axios.get(url);
+	const fetchWithToken = async (params: Record<string, string>) => {
+		const queryParams = new URLSearchParams(params).toString();
+		const response = await axios.get(`${MEETINGS_API_URL}?${queryParams}`);
 		return response.data;
 	};
+
 	return (
 		<BackgroundView>
 			{/*<View style={styles.container}>
