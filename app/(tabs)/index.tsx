@@ -1,24 +1,27 @@
 import React from 'react';
-import { View, ActivityIndicator, Text, FlatList, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { ThemeToggleButton } from '@/components/ThemeToggleButton';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
-import MeetupCard from '@/components/MeetupCard';
-import { useMeetups } from '@/hooks/useMeetups';
-import FilterBar from '@/components/FilterBar';
+import axios from "axios";
+import DataLoader from '@/components/DataLoader/DataLoader'
 
 export default function HomeScreen() {
-	const {
+	/*const {
 		meetups,
 		loading,
 		error,
 		handleSearchChange,
 		handleDateFilter,
 		applyFilters
-	} = useMeetups();
-
+	} = useMeetups();*/
+	//fetchFunction
+	const fetchWithToken = async (url: string) => {
+		const response = await axios.get(url);
+		return response.data;
+	};
 	return (
 		<BackgroundView>
-			<View style={styles.container}>
+			{/*<View style={styles.container}>
 				<FilterBar
 					onSearchChange={handleSearchChange}
 					onDateFilter={handleDateFilter}
@@ -35,8 +38,11 @@ export default function HomeScreen() {
 						renderItem={({ item }) => <MeetupCard {...item} />}
 					/>
 				)}
-			</View>
+			</View>*/}
 			<ThemeToggleButton />
+			<View style={styles.container}>
+				<DataLoader fetchFunction={fetchWithToken} />
+			</View>
 		</BackgroundView>
 	);
 }
