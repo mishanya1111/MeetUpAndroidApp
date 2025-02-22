@@ -1,3 +1,4 @@
+
 export const Colors = {
 	dark: {
 		background: '#0d1117',
@@ -10,7 +11,8 @@ export const Colors = {
 		dropdownShadow: '#ffffff1a',
 		userInfoHoverBg: '#21272e',
 		primaryLink: '#00ea00',
-		activeTabs: 'purple'
+		activeTabs: 'purple',
+		handlePath: require('@/assets/images/handle_color_white.png'),
 	},
 	light: {
 		background: '#f5f5f5',
@@ -21,7 +23,8 @@ export const Colors = {
 		buttonBorder: '#d9d9d9',
 		userInfoHoverBg: '#d0d0d0',
 		primaryLink: '#4a4aff',
-		activeTabs: 'gray'
+		activeTabs: 'gray',
+		handlePath: require('@/assets/images/handle_color_black.png')
 	}
 };
 export const BUTTON_TEXT = '#fff';

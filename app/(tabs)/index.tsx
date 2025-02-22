@@ -18,6 +18,7 @@ export default function HomeScreen() {
 	//fetchFunction
 	const fetchWithToken = async (params: Record<string, string>) => {
 		const queryParams = new URLSearchParams(params).toString();
+		console.log(queryParams)
 		const response = await axios.get(`${MEETINGS_API_URL}?${queryParams}`);
 		return response.data;
 	};
@@ -42,7 +43,7 @@ export default function HomeScreen() {
 					/>
 				)}
 			</View>*/}
-			<ThemeToggleButton />
+			{/*<ThemeToggleButton />*/}
 			<View style={styles.container}>
 				<DataLoader fetchFunction={fetchWithToken} />
 			</View>

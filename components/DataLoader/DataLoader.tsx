@@ -30,7 +30,7 @@ const DataLoader: React.FC<DataLoaderProps> = ({ fetchFunction }) => {
 			) : error ? (
 				<Text style={styles.errorText}>Error: {error}</Text>
 			) : (
-				<FlatList
+				<FlatList style={{height: '80%'}}
 					data={meetups}
 					keyExtractor={item => item.id.toString()}
 					renderItem={({ item }) => <MeetupCard {...item} />}

@@ -47,10 +47,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 					console.log(selectedDate);
 					if (event.type === 'dismissed') {
 						isStartPicker ? setStartDate(null) : setEndDate(null);
-						console.log('new:' + startDate);
 					} else if (selectedDate) {
 						const localDate = new Date(selectedDate.getTime() + 3 * 60 * 60 * 1000); // +3 часа
-						console.log(localDate);
 						isStartPicker ? setStartDate(localDate) : setEndDate(localDate);
 					}
 					isStartPicker ? setShowStartPicker(false) : setShowEndPicker(false);
