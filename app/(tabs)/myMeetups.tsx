@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-	View,
-	Button,
-	StyleSheet
-} from 'react-native';
+import { View, Button, StyleSheet } from 'react-native';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
 import { ThemeToggleButton } from '@/components/ThemeToggleButton';
 import { useAuth } from '@/context/AuthContext';

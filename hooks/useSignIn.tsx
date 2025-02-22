@@ -3,7 +3,7 @@ import axios from 'axios';
 import { TOKEN_API_URL } from '@/constant/apiURL';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'expo-router';
-import { BASE } from '@/constant/router';
+import { PROFILE } from '@/constant/router';
 export const useSignIn = () => {
 	const [formData, setFormData] = useState({ username: '', password: '' });
 	const [errorMessage, setErrorMessage] = useState('');
@@ -26,7 +26,7 @@ export const useSignIn = () => {
 			const response = await axios.post(TOKEN_API_URL, formData);
 			saveDate(response.data);
 			console.log('successful');
-			router.push(BASE);
+			router.push(PROFILE);
 		} catch (error) {
 			setErrorMessage('Invalid username or password. Please try again.');
 		} finally {
