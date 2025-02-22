@@ -12,7 +12,7 @@ export default function Profile() {
 	const router = useRouter();
 	const { token, name, removeToken } = useAuth();
 	const [showModal, setShowModal] = useState(false);
-	const { headerFooter} = useThemeColors();
+	const { headerFooter } = useThemeColors();
 	const handleLogout = () => {
 		removeToken();
 		setShowModal(false);

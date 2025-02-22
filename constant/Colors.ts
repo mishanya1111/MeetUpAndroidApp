@@ -1,4 +1,3 @@
-
 export const Colors = {
 	dark: {
 		background: '#0d1117',
@@ -12,7 +11,7 @@ export const Colors = {
 		userInfoHoverBg: '#21272e',
 		primaryLink: '#00ea00',
 		activeTabs: 'purple',
-		handlePath: require('@/assets/images/handle_color_white.png'),
+		handlePath: require('@/assets/images/handle_color_white.png')
 	},
 	light: {
 		background: '#f5f5f5',

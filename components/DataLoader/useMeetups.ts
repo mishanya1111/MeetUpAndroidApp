@@ -1,4 +1,3 @@
-// useMeetups.ts
 import { useState, useEffect } from 'react';
 
 interface Meetup {
@@ -10,86 +9,84 @@ interface Meetup {
 	to: string;
 }
 
-interface DateFilter {
-	startDate: string;
-	endDate: string;
+interface SearchParams {
+	query: string;
+	startDate: string | null;
+	endDate: string | null;
 }
 
 export const useMeetups = (
 	fetchFunction: (params: Record<string, string>) => Promise<any>
 ) => {
-	const [searchQuery, setSearchQuery] = useState<string>('');
-	const [dateFilter, setDateFilter] = useState<DateFilter>({
-		startDate: '',
-		endDate: ''
-	});
 	const [meetups, setMeetups] = useState<Meetup[]>([]);
-	const [searchParams, setSearchParams] = useState({
+	const [searchParams, setSearchParams] = useState<SearchParams>({
 		query: '',
-		startDate: '',
-		endDate: ''
+		startDate: null,
+		endDate: null
 	});
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
 
-	useEffect(() => {
-		const fetchData = async () => {
-			setLoading(true);
-			setError(null);
+	const fetchData = async () => {
+		setLoading(true);
+		setError(null);
 
-			const params: Record<string, string> = {
-				page_size: '12',
-				...(searchParams.query && { search: searchParams.query }),
-				...(searchParams.startDate && { datetime_beg__gt: searchParams.startDate }),
-				...(searchParams.endDate && { datetime_beg__lt: searchParams.endDate })
-			};
-
-			try {
-				const data = await fetchFunction(params);
-				if (data?.results) {
-					setMeetups(
-						data.results.map((item: any) => ({
-							id: item.id,
-							title: item.title,
-							description: item.description,
-							image: item.image || '',
-							dateTime: item.datetime_beg,
-							to: 'index'
-						}))
-					);
-				}
-			} catch (err) {
-				setError((err as Error).message || 'Something went wrong');
-			} finally {
-				setLoading(false);
-			}
+		const params: Record<string, string> = {
+			page_size: '12',
+			...(searchParams.query && { search: searchParams.query }),
+			...(searchParams.startDate && { datetime_beg__gt: searchParams.startDate }),
+			...(searchParams.endDate && { datetime_beg__lt: searchParams.endDate })
 		};
 
-		fetchData();
-	}, [searchParams, fetchFunction]);
-
-	const handleSearchChange = (query: string) => {
-		setSearchQuery(query);
+		try {
+			const data = await fetchFunction(params);
+			if (data?.results) {
+				setMeetups(
+					data.results.map((item: any) => ({
+						id: item.id,
+						title: item.title,
+						description: item.description,
+						image: item.image || '',
+						dateTime: item.datetime_beg,
+						to: 'index'
+					}))
+				);
+			}
+		} catch (err) {
+			setError((err as Error).message || 'Something went wrong');
+		} finally {
+			setLoading(false);
+		}
 	};
 
-	const handleDateFilter = (startDate: string, endDate: string) => {
-		setDateFilter({ startDate, endDate });
+	useEffect(() => {
+		fetchData();
+	}, []);
+
+	const setSearchQuery = (query: string) => {
+		setSearchParams(prev => ({ ...prev, query }));
+	};
+
+	const setStartDate = (date: string | null) => {
+		setSearchParams(prev => ({ ...prev, startDate: date }));
+	};
+
+	const setEndDate = (date: string | null) => {
+		setSearchParams(prev => ({ ...prev, endDate: date }));
 	};
 
 	const applyFilters = () => {
-		setSearchParams({
-			query: searchQuery,
-			startDate: dateFilter.startDate,
-			endDate: dateFilter.endDate
-		});
+		fetchData();
 	};
 
 	return {
 		meetups,
 		loading,
 		error,
-		handleSearchChange,
-		handleDateFilter,
-		applyFilters
+		setSearchQuery,
+		setStartDate,
+		setEndDate,
+		applyFilters,
+		searchParams
 	};
 };

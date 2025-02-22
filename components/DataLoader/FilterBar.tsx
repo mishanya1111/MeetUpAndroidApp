@@ -6,50 +6,44 @@ import { useThemeColors } from '@/hooks/useThemeColors';
 import { BUTTON_TEXT } from '@/constant/Colors';
 
 interface FilterBarProps {
-	onSearchChange: (query: string) => void;
-	onDateFilter: (startDate: string, endDate: string) => void;
-	onApplyFilters: () => void;
+	searchQuery: string;
+	startDate: string | null;
+	endDate: string | null;
+	setSearchQuery: (query: string) => void;
+	setStartDate: (date: string | null) => void;
+	setEndDate: (date: string | null) => void;
+	applyFilters: () => void;
 }
 
-export const FilterBar: React.FC<FilterBarProps> = ({
-	onSearchChange,
-	onDateFilter,
-	onApplyFilters
+const FilterBar: React.FC<FilterBarProps> = ({
+	searchQuery,
+	startDate,
+	endDate,
+	setSearchQuery,
+	setStartDate,
+	setEndDate,
+	applyFilters
 }) => {
-	const [searchQuery, setSearchQuery] = useState('');
 	const [showDateFilters, setShowDateFilters] = useState(false);
-	const [startDate, setStartDate] = useState<Date | null>(null);
-	const [endDate, setEndDate] = useState<Date | null>(null);
 	const [showStartPicker, setShowStartPicker] = useState(false);
 	const [showEndPicker, setShowEndPicker] = useState(false);
-	const { headerFooter, text, buttonBorder, buttonBg } = useThemeColors();
 
-	const handleApplyFilters = () => {
-		console.log('on apply: ' + 'start: ' + startDate + 'endDate' + endDate);
-		onSearchChange(searchQuery);
-		onDateFilter(
-			startDate ? startDate.toISOString().split('T')[0] : '',
-			endDate ? endDate.toISOString().split('T')[0] : ''
-		);
-		onApplyFilters();
-	};
+	const { headerFooter, text, buttonBorder, buttonBg } = useThemeColors();
 
 	const renderDatePicker = (pickerType: 'start' | 'end') => {
 		const isStartPicker = pickerType === 'start';
 		return (
 			<DateTimePicker
-				value={isStartPicker ? startDate || new Date() : endDate || new Date()}
+				value={new Date()}
 				mode="date"
 				display="default"
-				//timeZoneOffsetInMinutes={180}
 				onChange={(event, selectedDate) => {
-					console.log(event);
-					console.log(selectedDate);
 					if (event.type === 'dismissed') {
 						isStartPicker ? setStartDate(null) : setEndDate(null);
 					} else if (selectedDate) {
-						const localDate = new Date(selectedDate.getTime() + 3 * 60 * 60 * 1000); // +3 часа
-						isStartPicker ? setStartDate(localDate) : setEndDate(localDate);
+						const localDate = new Date(selectedDate.getTime() + 3 * 60 * 60 * 1000);
+						const formattedDate = localDate.toISOString().split('T')[0];
+						isStartPicker ? setStartDate(formattedDate) : setEndDate(formattedDate);
 					}
 					isStartPicker ? setShowStartPicker(false) : setShowEndPicker(false);
 				}}
@@ -73,19 +67,15 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 		},
 		dateFilters: {
 			flexDirection: 'row',
-			justifyContent: 'space-between',
-			marginVertical: 10
-		},
-		dateButton: {
-			flex: 1,
-			marginHorizontal: 5
+			justifyContent: 'space-around'
 		},
 		dateInput: {
 			padding: 8,
 			borderWidth: 1,
 			borderColor: buttonBorder,
 			borderRadius: 50,
-			textAlign: 'center'
+			textAlign: 'center',
+			color: text
 		},
 		buttonApply: {
 			backgroundColor: buttonBg,
@@ -100,64 +90,58 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 			textAlign: 'center'
 		}
 	});
+
 	return (
 		<View style={[styles.filterBar, { backgroundColor: headerFooter }]}>
-			<View style={[styles.searchContainer]}>
+			<View style={styles.searchContainer}>
 				<TextInput
 					style={{
 						flex: 1,
 						padding: 8,
 						borderWidth: 1,
 						borderColor: buttonBorder,
-						borderRadius: 50
+						borderRadius: 50,
+						color: text
 					}}
 					placeholder="Search meetups..."
 					placeholderTextColor={text}
 					value={searchQuery}
 					onChangeText={setSearchQuery}
+					onSubmitEditing={() => applyFilters()}
 				/>
-				<TouchableOpacity
-					onPress={() => setShowDateFilters(!showDateFilters)}
-					style={[styles.iconButton]}
-				>
+				<TouchableOpacity onPress={() => setShowDateFilters(!showDateFilters)}>
 					<Feather name="calendar" size={20} color={text} />
 				</TouchableOpacity>
 			</View>
 
 			{showDateFilters && (
 				<View style={styles.dateFilters}>
-					<TouchableOpacity
-						onPress={() => setShowStartPicker(true)}
-						style={styles.dateButton}
-					>
+					<TouchableOpacity onPress={() => setShowStartPicker(true)}>
 						<TextInput
 							style={styles.dateInput}
-							placeholderTextColor={text}
 							placeholder="Start Date"
-							value={startDate ? startDate.toISOString().split('T')[0] : ''}
+							placeholderTextColor={text}
+							value={startDate || ''}
 							editable={false}
 						/>
 					</TouchableOpacity>
 
-					<TouchableOpacity
-						onPress={() => setShowEndPicker(true)}
-						style={styles.dateButton}
-					>
+					<TouchableOpacity onPress={() => setShowEndPicker(true)}>
 						<TextInput
 							style={styles.dateInput}
-							placeholderTextColor={text}
 							placeholder="End Date"
-							value={endDate ? endDate.toISOString().split('T')[0] : ''}
+							placeholderTextColor={text}
+							value={endDate || ''}
 							editable={false}
 						/>
 					</TouchableOpacity>
 				</View>
 			)}
 
-			{/*<Button title="Apply Filters" onPress={handleApplyFilters} />*/}
-			<TouchableOpacity onPress={handleApplyFilters} style={styles.buttonApply}>
-				<Text style={styles.buttonApplyText}> Apply Filters </Text>
+			<TouchableOpacity onPress={applyFilters} style={styles.buttonApply}>
+				<Text style={styles.buttonApplyText}>Apply Filters</Text>
 			</TouchableOpacity>
+
 			{showStartPicker && renderDatePicker('start')}
 			{showEndPicker && renderDatePicker('end')}
 		</View>

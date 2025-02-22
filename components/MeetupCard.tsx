@@ -15,9 +15,9 @@ interface MeetupCardProps {
 const MeetupCard = memo(
 	({ title, description, image, dateTime, to }: MeetupCardProps) => {
 		const router = useRouter();
-		const {handlePath} = useThemeColors()
+		const { handlePath } = useThemeColors();
 		const { headerFooter, description: descriptionColor } = useThemeColors();
-		const handleImage = image ? {uri: image} :  handlePath ;
+		const handleImage = image ? { uri: image } : handlePath;
 		const date = new Date(dateTime);
 		const formattedDate = `${date.getUTCDate()}.${date.getUTCMonth() + 1}.${date.getUTCFullYear()}`;
 		//Оно работает не трогай пока (to)
@@ -26,7 +26,7 @@ const MeetupCard = memo(
 				onPress={() => router.push(to)}
 				style={[styles.card, { backgroundColor: headerFooter }]}
 			>
-				<Image source={ handleImage } style={styles.image} />
+				<Image source={handleImage} style={styles.image} />
 				<ThemedText style={[styles.title]}>{title}</ThemedText>
 				<Text style={[styles.date, { color: descriptionColor }]}>
 					{formattedDate}
