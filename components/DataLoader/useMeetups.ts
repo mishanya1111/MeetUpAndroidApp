@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import {MEETUP} from "@/constant/router";
+import { MEETUP } from '@/constant/router';
 
 interface Meetup {
 	id: number;

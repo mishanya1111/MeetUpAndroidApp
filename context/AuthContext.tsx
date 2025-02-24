@@ -70,7 +70,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 			await saveToken({ refresh: newDate.refresh, access: newDate.access });
 			await saveName(newDate.username);
 			await saveId(newDate.user_id);
-			setLoading(false);
 		},
 		[saveToken, saveName, saveId]
 	);

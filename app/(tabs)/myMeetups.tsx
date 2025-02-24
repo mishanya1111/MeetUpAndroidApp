@@ -9,7 +9,7 @@ import { useRouter } from 'expo-router';
 import { SIGN_IN } from '@/constant/router';
 import { ThemedText } from '@/components/styleComponent/ThemedText';
 import { Button } from 'react-native';
-import {giveConfig} from "@/utils/giveConfig";
+import { giveConfig } from '@/utils/giveConfig';
 
 export default function MyMeetups() {
 	const { token, userID, name } = useAuth(); // Достаём токен и userID из контекста
@@ -32,15 +32,17 @@ export default function MyMeetups() {
 	// Функция для загрузки данных встреч
 	const fetchWithToken = async (params: Record<string, string>) => {
 		const queryParams = new URLSearchParams(params).toString();
-		console.log("userID" + userID);
-		console.log("url in owned" + `${USER_API_URL}${userID}/meetings_owned?` + queryParams)
+		console.log('userID' + userID);
+		console.log(
+			'url in owned' + `${USER_API_URL}${userID}/meetings_owned?` + queryParams
+		);
 		const response = await axios.get(
 			`${USER_API_URL}${userID}/meetings_owned?${queryParams}`,
 			giveConfig(token)
 		);
 
 		if (response.data.results) {
-			console.log("length:" + response.data.results.length)
+			console.log('length:' + response.data.results.length);
 		}
 		return response.data;
 	};
@@ -48,7 +50,9 @@ export default function MyMeetups() {
 	return (
 		<BackgroundView>
 			<View style={styles.container}>
-				<ThemedText style={styles.title}>Hello {name}. Here are your meetups:</ThemedText>
+				<ThemedText style={styles.title}>
+					Hello {name}. Here are your meetups:
+				</ThemedText>
 				<DataLoader fetchFunction={fetchWithToken} />
 			</View>
 		</BackgroundView>
