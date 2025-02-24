@@ -30,11 +30,18 @@ export default function MyMeetups() {
 	}
 
 	// Функция для загрузки данных встреч
-	const fetchWithToken = async () => {
+	const fetchWithToken = async (params: Record<string, string>) => {
+		const queryParams = new URLSearchParams(params).toString();
+		console.log("userID" + userID);
+		console.log("url in owned" + `${USER_API_URL}${userID}/meetings_owned?` + queryParams)
 		const response = await axios.get(
-			`${USER_API_URL}${userID}/meetings_owned/`,
+			`${USER_API_URL}${userID}/meetings_owned/${queryParams}`,
 			giveConfig(token)
 		);
+
+		if (response.data.results) {
+			console.log("length:" + response.data.results.length)
+		}
 		return response.data;
 	};
 

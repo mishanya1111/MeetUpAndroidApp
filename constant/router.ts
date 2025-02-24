@@ -15,3 +15,4 @@ export const MEETUP_DETAILS = BASE + '/meetup-details';
 export const SIGN_IN = BASE + '/SignIn';
 export const SIGN_UP = BASE + '/SignUp';
 export const PROFILE = BASE + '/profile';
+export const MEETUP = BASE + '/meetup';

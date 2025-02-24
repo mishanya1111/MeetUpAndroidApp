@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import {MEETUP} from "@/constant/router";
 
 interface Meetup {
 	id: number;
@@ -48,7 +49,7 @@ export const useMeetups = (
 						description: item.description,
 						image: item.image || '',
 						dateTime: item.datetime_beg,
-						to: 'index'
+						to: `${MEETUP}/${item.id}`
 					}))
 				);
 			}

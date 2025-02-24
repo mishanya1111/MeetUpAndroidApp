@@ -20,7 +20,10 @@ const DataLoader: React.FC<DataLoaderProps> = ({ fetchFunction }) => {
 		applyFilters,
 		searchParams
 	} = useMeetups(fetchFunction);
-	console.log(error);
+	if(error) {
+		console.log("Error in DataLoader:");
+		console.log(error)
+	}
 	return (
 		<View>
 			<FilterBar
