@@ -13,6 +13,7 @@ import {SIGN_IN} from "@/constant/router"; // Для иконки стрелоч
 const MeetupDetails = () => {
   const { token, name } = useAuth(); // Достаём токен и userID из контекста
   const router = useRouter();
+  const {handlePath, text, description: descriptionColor} = useThemeColors();
   // Если нет токена — показываем просьбу войти в систему
   if (!token) {
     return (
@@ -44,7 +45,7 @@ const MeetupDetails = () => {
     handleSignForMeeting,
     handleUnsubscribe
   } = useMeetupDetails();
-  const {handlePath, text, description: descriptionColor} = useThemeColors();
+
 
   if (loading) {
     return (
@@ -103,7 +104,10 @@ const MeetupDetails = () => {
         </Text>
 
         {userID === meetup?.author_id ? (
-          <Button title="Edit Meetup" onPress={() => router.push(`/editMeetup/${meetup?.id}`)}/>
+          <Button title="Edit Meetup" onPress={() => {
+            //router.push(`/editMeetup/${meetup?.id})`
+            console.log("router => Edit page")
+          }}/>
         ) : isFavorite !== null ? (
           isFavorite ? (
             <Button title="Unsubscribe" onPress={handleUnsubscribe}/>

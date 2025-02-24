@@ -35,7 +35,7 @@ export default function MyMeetups() {
 		console.log("userID" + userID);
 		console.log("url in owned" + `${USER_API_URL}${userID}/meetings_owned?` + queryParams)
 		const response = await axios.get(
-			`${USER_API_URL}${userID}/meetings_owned/${queryParams}`,
+			`${USER_API_URL}${userID}/meetings_owned?${queryParams}`,
 			giveConfig(token)
 		);
 
