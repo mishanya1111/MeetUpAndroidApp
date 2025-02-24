@@ -1,9 +1,10 @@
 // DataLoader.tsx
 import React from 'react';
-import { View, ActivityIndicator, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { useMeetups } from '@/components/DataLoader/useMeetups';
 import FilterBar from '@/components/DataLoader/FilterBar';
 import MeetupCard from '@/components/MeetupCard';
+import Loader from '@/components/Loader';
 
 interface DataLoaderProps {
 	fetchFunction: (params: Record<string, string>) => Promise<any>;
@@ -36,7 +37,8 @@ const DataLoader: React.FC<DataLoaderProps> = ({ fetchFunction }) => {
 				applyFilters={applyFilters}
 			/>
 			{loading ? (
-				<ActivityIndicator size="large" style={styles.loader} />
+				/*<ActivityIndicator size="large" style={styles.loader} />*/
+				<Loader />
 			) : error ? (
 				<Text style={styles.errorText}>Error: {error}</Text>
 			) : (

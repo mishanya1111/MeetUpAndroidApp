@@ -11,8 +11,11 @@ export const SIGN_UP = BASE + '/sign-up';
 export const CREATE_MEETUPS = BASE + '/create';
 export const USERS_DETAIL = BASE + '/users';
 */
-export const MEETUP_DETAILS = BASE + '/meetup-details';
-export const SIGN_IN = BASE + '/SignIn';
-export const SIGN_UP = BASE + '/SignUp';
-export const PROFILE = BASE + '/profile';
-export const MEETUP = BASE + '/meetup';
+//export type RoutePath = `/${string}`;
+
+export const MEETUP_DETAILS: `/${string}` = '/meetup-details';
+export const SIGN_IN: `/${string}` = '/SignIn';
+export const SIGN_UP: `/${string}` = '/SignUp';
+export const PROFILE: `/${string}` = '/profile';
+export const MEETUP: `/${string}` = '/meetup';
+export const CREATE_MEETUPS: `/${string}` = '/CreateMeetup';

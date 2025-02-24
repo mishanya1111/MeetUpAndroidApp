@@ -6,6 +6,7 @@ import { useFonts } from 'expo-font';
 
 import { ThemeProvider } from '@/context/ThemeContext';
 import { AuthProvider } from '@/context/AuthContext';
+import { CreateMeetup } from '@/app/CreateMeetup';
 
 // Отключаем авто-скрытие SplashScreen, пока ресурсы загружаются
 SplashScreen.preventAutoHideAsync();
@@ -41,6 +42,7 @@ export default function RootLayout() {
 							headerShown: false
 						}}
 					/>
+					<Stack.Screen name="CreateMeetup" options={{ headerShown: false }} />
 					<Stack.Screen name="+not-found" />
 				</Stack>
 				<StatusBar style="auto" />
