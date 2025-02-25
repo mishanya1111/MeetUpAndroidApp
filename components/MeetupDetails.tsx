@@ -7,17 +7,16 @@ import {
 	Button,
 	ActivityIndicator,
 	StyleSheet,
-	ScrollView,
-	TouchableOpacity
+	ScrollView
 } from 'react-native';
 import { useMeetupDetails } from '@/hooks/useMeetupDetails';
 import { useRouter } from 'expo-router';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthContext';
 import { ThemedText } from '@/components/styleComponent/ThemedText';
-import { SIGN_IN } from '@/constant/router'; // Для иконки стрелочки назад
+import { SIGN_IN } from '@/constant/router';
+import HeaderWithTitle from '@/components/headerWithTitle'; // Для иконки стрелочки назад
 
 const MeetupDetails = () => {
 	const { token } = useAuth(); // Достаём токен и userID из контекста
@@ -37,12 +36,7 @@ const MeetupDetails = () => {
 	if (!token) {
 		return (
 			<BackgroundView>
-				<View style={styles.header}>
-					<TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-						<Ionicons name="arrow-back" size={24} color={text} />
-					</TouchableOpacity>
-					<Text style={[styles.headerTitle, { color: text }]}>Meetup Details</Text>
-				</View>
+				<HeaderWithTitle title="Meetup details" />
 				<View style={styles.authContainer}>
 					<ThemedText style={styles.authText}>
 						Please log in to view description of meetup.
@@ -77,15 +71,7 @@ const MeetupDetails = () => {
 
 	return (
 		<BackgroundView>
-			{/* Кастомный header с кнопкой назад */}
-			<View style={styles.header}>
-				<TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-					<Ionicons name="arrow-back" size={24} color={text} />
-				</TouchableOpacity>
-				<Text style={[styles.headerTitle, { color: text }]}>
-					{meetup?.title || 'Meetup Details'}
-				</Text>
-			</View>
+			<HeaderWithTitle title={meetup?.title || 'Meetup Details'} />
 
 			<ScrollView contentContainerStyle={styles.container}>
 				<Image

@@ -33,7 +33,7 @@ export const useMeetups = (
 		setError(null);
 
 		const params: Record<string, string> = {
-			page_size: '12',
+			page_size: '0',
 			...(searchParams.query && { search: searchParams.query }),
 			...(searchParams.startDate && { datetime_beg__gt: searchParams.startDate }),
 			...(searchParams.endDate && { datetime_beg__lt: searchParams.endDate })

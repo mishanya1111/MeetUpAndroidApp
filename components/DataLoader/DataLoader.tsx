@@ -8,9 +8,13 @@ import Loader from '@/components/Loader';
 
 interface DataLoaderProps {
 	fetchFunction: (params: Record<string, string>) => Promise<any>;
+	flatListHeight?: string;
 }
 
-const DataLoader: React.FC<DataLoaderProps> = ({ fetchFunction }) => {
+const DataLoader: React.FC<DataLoaderProps> = ({
+	fetchFunction,
+	flatListHeight = '75%'
+}) => {
 	const {
 		meetups,
 		loading,
@@ -43,7 +47,7 @@ const DataLoader: React.FC<DataLoaderProps> = ({ fetchFunction }) => {
 				<Text style={styles.errorText}>Error: {error}</Text>
 			) : (
 				<FlatList
-					style={{ height: '80%' }}
+					style={{ height: flatListHeight }}
 					data={meetups}
 					keyExtractor={item => item.id.toString()}
 					renderItem={({ item }) => <MeetupCard {...item} />}

@@ -53,9 +53,21 @@ export default function TabLayout() {
 				}}
 			/>
 			<Tabs.Screen
-				name="myMeetups"
+				name="myMeetupsOwned"
 				options={{
-					title: 'myMeetups',
+					title: 'Owned meetUp',
+					tabBarIcon: () => (
+						<Image
+							source={require('@/assets/icons/favorite.png')}
+							style={styles.icon}
+						/>
+					)
+				}}
+			/>
+			<Tabs.Screen
+				name="myMeetupsSubscriber"
+				options={{
+					title: 'Subscriber meetUp',
 					tabBarIcon: () => (
 						<Image
 							source={require('@/assets/icons/favorite.png')}

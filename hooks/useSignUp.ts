@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import { REGISTER_API_URL } from '@/constant/apiURL';
 import { useRouter } from 'expo-router';
@@ -20,14 +20,20 @@ export const useSignUp = () => {
 		setFormData(prevData => ({ ...prevData, [name]: value }));
 	}, []);
 
+	useEffect(() => {
+		console.log(formData);
+	}, [formData]);
 	const handleSubmit = useCallback(async () => {
+		console.log('registration start');
 		setIsPending(true);
 		try {
 			const response = await axios.post(REGISTER_API_URL, formData);
+			console.log('Give date');
 			saveDate(response.data);
 			console.log('Registration successful');
 			router.push(PROFILE);
 		} catch (error) {
+			console.log('lose date');
 			console.log(error);
 			console.log(error.toString());
 			setErrorMessage(error.response?.data?.username[0]);

@@ -11,6 +11,7 @@ import { useSignIn } from '@/hooks/useSignIn';
 import { SIGN_UP } from '@/constant/router';
 import { useRouter } from 'expo-router';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
+import HeaderWithTitle from '@/components/headerWithTitle';
 
 export default function SignIn() {
 	const {
@@ -25,6 +26,7 @@ export default function SignIn() {
 	const router = useRouter();
 	return (
 		<BackgroundView>
+			<HeaderWithTitle title="Log IN" />
 			<View style={styles.container}>
 				<Text style={styles.title}>Log In</Text>
 				<TextInput

@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
 import axios from 'axios';
 import DataLoader from '@/components/DataLoader/DataLoader';
-import { USER_API_URL } from '@/constant/apiURL';
+import {  MEETINGS_SIGNED, USER_API_URL } from '@/constant/apiURL';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'expo-router';
 import { SIGN_IN } from '@/constant/router';
@@ -11,8 +11,8 @@ import { ThemedText } from '@/components/styleComponent/ThemedText';
 import { Button } from 'react-native';
 import { giveConfig } from '@/utils/giveConfig';
 
-export default function MyMeetups() {
-	const { token, userID, name } = useAuth(); // Достаём токен и userID из контекста
+export default function MyMeetupsSubscriber() {
+	const { token, userID } = useAuth(); // Достаём токен и userID из контекста
 	const router = useRouter();
 
 	// Если нет токена — показываем просьбу войти в систему
@@ -33,17 +33,18 @@ export default function MyMeetups() {
 	const fetchWithToken = async (params: Record<string, string>) => {
 		const queryParams = new URLSearchParams(params).toString();
 		console.log('userID' + userID);
-		console.log(
-			'url in owned' + `${USER_API_URL}${userID}/meetings_owned?` + queryParams
-		);
+		/*console.log(
+			'url in owned' + `${USER_API_URL}${userID}/${MEETINGS_OWNED}?` + queryParams
+		);*/
 		const response = await axios.get(
-			`${USER_API_URL}${userID}/meetings_owned?${queryParams}`,
+			`${USER_API_URL}${userID}/${MEETINGS_SIGNED}/` /*?${queryParams}*/,
 			giveConfig(token)
 		);
 
-		if (response.data.results) {
-			console.log('length:' + response.data.results.length);
-		}
+		/*if (response) {
+			console.log(response)
+		}*/
+		response.data.results = response.data; // как влад починит - убрать!!!!!!!
 		return response.data;
 	};
 
@@ -51,7 +52,7 @@ export default function MyMeetups() {
 		<BackgroundView>
 			<View style={styles.container}>
 				<ThemedText style={styles.title}>
-					Hello {name}. Here are your meetups:
+					Your meetups are you subscribe :
 				</ThemedText>
 				<DataLoader fetchFunction={fetchWithToken} />
 			</View>
