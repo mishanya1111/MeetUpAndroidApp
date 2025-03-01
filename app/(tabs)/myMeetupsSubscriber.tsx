@@ -33,11 +33,13 @@ export default function MyMeetupsSubscriber() {
 	const fetchWithToken = async (params: Record<string, string>) => {
 		const queryParams = new URLSearchParams(params).toString();
 		console.log('userID' + userID);
-		/*console.log(
-			'url in owned' + `${USER_API_URL}${userID}/${MEETINGS_OWNED}?` + queryParams
-		);*/
+		console.log(
+			'url in ыгиыскшиук' +
+				`${USER_API_URL}${userID}/${MEETINGS_SIGNED}?` +
+				queryParams
+		);
 		const response = await axios.get(
-			`${USER_API_URL}${userID}/${MEETINGS_SIGNED}/` /*?${queryParams}*/,
+			`${USER_API_URL}${userID}/${MEETINGS_SIGNED}/?${queryParams}`,
 			giveConfig(token)
 		);
 

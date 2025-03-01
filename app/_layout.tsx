@@ -6,7 +6,6 @@ import { useFonts } from 'expo-font';
 
 import { ThemeProvider } from '@/context/ThemeContext';
 import { AuthProvider } from '@/context/AuthContext';
-import { CreateMeetup } from '@/app/CreateMeetup';
 
 // Отключаем авто-скрытие SplashScreen, пока ресурсы загружаются
 SplashScreen.preventAutoHideAsync();

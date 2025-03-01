@@ -8,3 +8,4 @@ export const MEETUP_DETAILS_API_URL = BASE_API_URL + 'meetup-details/';
 
 export const MEETINGS_OWNED = 'meetings_owned';
 export const MEETINGS_SIGNED = 'meetings_signed';
+export const REFRESH_URL = BASE_API_URL + 'token/refresh/';
