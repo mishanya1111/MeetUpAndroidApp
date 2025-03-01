@@ -44,7 +44,7 @@ export default function MyMeetupsOwned() {
 		/*if (response) {
 			console.log(response)
 		}*/
-		response.data.results = response.data; // как влад починит - убрать!!!!!!!
+		//response.data.results = response.data; // как влад починит - убрать!!!!!!!
 		return response.data;
 	};
 

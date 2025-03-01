@@ -6,7 +6,9 @@ import {
 	Text,
 	StyleSheet,
 	TouchableOpacity,
-	Image
+	Image,
+	Linking,
+	Platform
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useCreateMeetup } from '@/hooks/useCreateMeetup';
@@ -14,12 +16,26 @@ import { useCreateMeetup } from '@/hooks/useCreateMeetup';
 const CreateMeetup = () => {
 	const { formData, handleChange, pickImage, handleSubmit, loading, error } =
 		useCreateMeetup();
-	const [showPicker, setShowPicker] = useState(false);
+	const [showDatePicker, setShowDatePicker] = useState(false);
+	const [showTimePicker, setShowTimePicker] = useState(false);
 
-	const handleDateChange = (event: any, selectedDate?: Date) => {
-		setShowPicker(false);
+	const handleDateChange = (_event: any, selectedDate?: Date) => {
+		setShowDatePicker(false);
 		if (selectedDate) {
 			handleChange('datetime_beg', selectedDate.toISOString());
+			if (Platform.OS === 'android') {
+				setShowTimePicker(true);
+			}
+		}
+	};
+
+	const handleTimeChange = (_event: any, selectedTime?: Date) => {
+		setShowTimePicker(false);
+		if (selectedTime) {
+			const currentDate = new Date(formData.datetime_beg);
+			currentDate.setHours(selectedTime.getHours());
+			currentDate.setMinutes(selectedTime.getMinutes());
+			handleChange('datetime_beg', currentDate.toISOString());
 		}
 	};
 
@@ -37,23 +53,38 @@ const CreateMeetup = () => {
 				value={formData.description}
 				onChangeText={text => handleChange('description', text)}
 			/>
-			<TouchableOpacity onPress={() => setShowPicker(true)}>
+			<TouchableOpacity onPress={() => setShowDatePicker(true)}>
 				<TextInput
 					style={styles.input}
 					placeholder="Start Date and Time"
-					value={formData.datetime_beg}
+					value={
+						formData.datetime_beg
+							? new Date(formData.datetime_beg).toLocaleString()
+							: ''
+					}
 					editable={false}
 				/>
 			</TouchableOpacity>
 
-			{showPicker && (
+			{showDatePicker && (
 				<DateTimePicker
 					value={
 						formData.datetime_beg ? new Date(formData.datetime_beg) : new Date()
 					}
-					mode="datetime"
+					mode="date"
 					display="default"
 					onChange={handleDateChange}
+				/>
+			)}
+
+			{showTimePicker && (
+				<DateTimePicker
+					value={
+						formData.datetime_beg ? new Date(formData.datetime_beg) : new Date()
+					}
+					mode="time"
+					display="default"
+					onChange={handleTimeChange}
 				/>
 			)}
 
@@ -65,11 +96,16 @@ const CreateMeetup = () => {
 				onChangeText={text => handleChange('link', text)}
 			/>
 
+			{formData.link ? (
+				<TouchableOpacity onPress={() => Linking.openURL(formData.link)}>
+					<Text style={styles.link}>Open Link</Text>
+				</TouchableOpacity>
+			) : (
+				<Text style={styles.noLink}>No link provided</Text>
+			)}
+
 			{formData.image && (
-				<Image
-					source={{ uri: URL.createObjectURL(formData.image) }}
-					style={styles.image}
-				/>
+				<Image source={{ uri: formData.image.uri }} style={styles.image} />
 			)}
 
 			<Button title="Upload Image" onPress={pickImage} />
@@ -95,6 +131,15 @@ const styles = StyleSheet.create({
 		width: 100,
 		height: 100,
 		borderRadius: 8,
+		marginBottom: 12
+	},
+	link: {
+		color: 'blue',
+		textDecorationLine: 'underline',
+		marginBottom: 12
+	},
+	noLink: {
+		color: '#888',
 		marginBottom: 12
 	},
 	errorText: {

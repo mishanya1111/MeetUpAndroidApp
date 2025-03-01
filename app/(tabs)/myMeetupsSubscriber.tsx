@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
 import axios from 'axios';
 import DataLoader from '@/components/DataLoader/DataLoader';
-import {  MEETINGS_SIGNED, USER_API_URL } from '@/constant/apiURL';
+import { MEETINGS_SIGNED, USER_API_URL } from '@/constant/apiURL';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'expo-router';
 import { SIGN_IN } from '@/constant/router';
@@ -44,7 +44,7 @@ export default function MyMeetupsSubscriber() {
 		/*if (response) {
 			console.log(response)
 		}*/
-		response.data.results = response.data; // как влад починит - убрать!!!!!!!
+		//response.data.results = response.data; // как влад починит - убрать!!!!!!!
 		return response.data;
 	};
 

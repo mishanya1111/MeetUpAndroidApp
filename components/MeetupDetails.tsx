@@ -5,7 +5,7 @@ import {
 	Text,
 	Image,
 	Button,
-	ActivityIndicator,
+	Linking,
 	StyleSheet,
 	ScrollView
 } from 'react-native';
@@ -16,12 +16,18 @@ import { useThemeColors } from '@/hooks/useThemeColors';
 import { useAuth } from '@/context/AuthContext';
 import { ThemedText } from '@/components/styleComponent/ThemedText';
 import { SIGN_IN } from '@/constant/router';
-import HeaderWithTitle from '@/components/headerWithTitle'; // Для иконки стрелочки назад
+import HeaderWithTitle from '@/components/headerWithTitle';
+import Loader from '@/components/Loader'; // Для иконки стрелочки назад
 
 const MeetupDetails = () => {
 	const { token } = useAuth(); // Достаём токен и userID из контекста
 	const router = useRouter();
-	const { handlePath, text, description: descriptionColor } = useThemeColors();
+	const {
+		handlePath,
+		text,
+		primaryLink,
+		description: descriptionColor
+	} = useThemeColors();
 	// Если нет токена — показываем просьбу войти в систему
 	const {
 		meetup,
@@ -50,11 +56,7 @@ const MeetupDetails = () => {
 	if (loading) {
 		return (
 			<BackgroundView>
-				<View style={styles.loader}>
-					<Text>
-						<ActivityIndicator size="large" />
-					</Text>
-				</View>
+				<Loader />
 			</BackgroundView>
 		);
 	}
@@ -84,8 +86,17 @@ const MeetupDetails = () => {
 				<Text style={[styles.author, { color: descriptionColor }]}>
 					Author: {meetup?.author || 'Unknown'}
 				</Text>
-				<Text style={[styles.link, { color: descriptionColor }]}>
-					Link: {meetup?.link || 'No link provided'}
+				<Text
+					style={[styles.link, { color: descriptionColor }]}
+					onPress={() => meetup?.link && Linking.openURL(meetup.link)}
+				>
+					Link:{' '}
+					<Text
+						style={{ color: primaryLink }}
+						onPress={() => meetup?.link && Linking.openURL(meetup.link)}
+					>
+						{meetup?.link || 'No link provided'}{' '}
+					</Text>
 				</Text>
 				<Text style={[styles.date, { color: descriptionColor }]}>
 					Date: {formattedDate}

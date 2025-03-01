@@ -39,8 +39,7 @@ const styles = StyleSheet.create({
 	loader: {
 		flex: 1,
 		justifyContent: 'center',
-		alignItems: 'center',
-		backgroundColor: 'rgba(0, 0, 0, 0.5)'
+		alignItems: 'center'
 	},
 	logo: {
 		width: 100,
