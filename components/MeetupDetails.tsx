@@ -17,7 +17,8 @@ import { useAuth } from '@/context/AuthContext';
 import { ThemedText } from '@/components/styleComponent/ThemedText';
 import { SIGN_IN } from '@/constant/router';
 import HeaderWithTitle from '@/components/headerWithTitle';
-import Loader from '@/components/Loader'; // Для иконки стрелочки назад
+import Loader from '@/components/Loader';
+import {LoginNeededContainer} from "@/components/LoginNeededContainer"; // Для иконки стрелочки назад
 
 const MeetupDetails = () => {
 	const { token } = useAuth(); // Достаём токен и userID из контекста
@@ -43,12 +44,8 @@ const MeetupDetails = () => {
 		return (
 			<BackgroundView>
 				<HeaderWithTitle title="Meetup details" />
-				<View style={styles.authContainer}>
-					<ThemedText style={styles.authText}>
-						Please log in to view description of meetup.
-					</ThemedText>
-					<Button title="Log In" onPress={() => router.push(SIGN_IN)} />
-				</View>
+
+				<LoginNeededContainer location="meetup_details"/>
 			</BackgroundView>
 		);
 	}

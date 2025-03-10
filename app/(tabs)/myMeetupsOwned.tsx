@@ -10,6 +10,7 @@ import { SIGN_IN } from '@/constant/router';
 import { ThemedText } from '@/components/styleComponent/ThemedText';
 import { Button } from 'react-native';
 import { giveConfig } from '@/utils/giveConfig';
+import {LoginNeededContainer} from "@/components/LoginNeededContainer";
 
 export default function MyMeetupsOwned() {
 	const { token, userID } = useAuth(); // Достаём токен и userID из контекста
@@ -19,12 +20,7 @@ export default function MyMeetupsOwned() {
 	if (!token) {
 		return (
 			<BackgroundView>
-				<View style={styles.authContainer}>
-					<ThemedText style={styles.authText}>
-						Please log in to view your meetups.
-					</ThemedText>
-					<Button title="Log In" onPress={() => router.push(SIGN_IN)} />
-				</View>
+				<LoginNeededContainer location="owned_meetups"/>
 			</BackgroundView>
 		);
 	}
