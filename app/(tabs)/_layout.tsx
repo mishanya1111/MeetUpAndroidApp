@@ -9,16 +9,10 @@ export default function TabLayout() {
 
 	const styles = StyleSheet.create({
 		icon: {
-			width: 28,
-			height: 28,
-			resizeMode: 'contain'
-		},
-		avatar: {
-			width: 32,
-			height: 32,
-			borderRadius: 16, // Делаем круглый аватар
-			borderWidth: 2,
-			borderColor: '#fff'
+			width: 30,
+			height: 30,
+			resizeMode: 'contain',
+			marginBottom: 3
 		}
 	});
 
@@ -39,7 +33,7 @@ export default function TabLayout() {
 				//tabBarStyle: {  },//..оно работает, не трогай, если сможешь оставить цвет и убрать ошибку то норм
 				tabBarLabelStyle: {
 					color: text,
-					fontSize: 9
+					fontSize: 9.9
 				}
 				//headerStyle: { backgroundColor: 'black' },
 			}}
@@ -84,7 +78,7 @@ export default function TabLayout() {
 					tabBarIcon: () => (
 						<Image
 							source={require('@/assets/icons/profile.png')}
-							style={styles.avatar}
+							style={styles.icon}
 						/>
 					)
 				}}
