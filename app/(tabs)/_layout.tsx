@@ -5,6 +5,8 @@ import { HapticTab } from '@/components/InitComponent/HapticTab';
 import { useThemeColors } from '@/hooks/useThemeColors';
 
 export default function TabLayout() {
+	console.log('Rendering TabLayout...');
+
 	const { activeTabs, headerFooter, text } = useThemeColors();
 
 	const styles = StyleSheet.create({
@@ -38,7 +40,8 @@ export default function TabLayout() {
 				}),
 				//tabBarStyle: {  },//..оно работает, не трогай, если сможешь оставить цвет и убрать ошибку то норм
 				tabBarLabelStyle: {
-					color: text
+					color: text,
+					fontSize: 9
 				}
 				//headerStyle: { backgroundColor: 'black' },
 			}}
@@ -55,7 +58,7 @@ export default function TabLayout() {
 			<Tabs.Screen
 				name="myMeetupsOwned"
 				options={{
-					title: 'Owned meetUp',
+					title: 'Owned Meetups',
 					tabBarIcon: () => (
 						<Image
 							source={require('@/assets/icons/favorite.png')}
@@ -67,7 +70,7 @@ export default function TabLayout() {
 			<Tabs.Screen
 				name="myMeetupsSubscriber"
 				options={{
-					title: 'Subscriber meetUp',
+					title: 'Subscribed Meetups',
 					tabBarIcon: () => (
 						<Image
 							source={require('@/assets/icons/favorite.png')}
@@ -88,6 +91,7 @@ export default function TabLayout() {
 					)
 				}}
 			/>
+
 		</Tabs>
 	);
 }

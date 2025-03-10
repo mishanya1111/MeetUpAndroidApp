@@ -103,7 +103,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
 						borderRadius: 50,
 						color: text
 					}}
-					placeholder="Search meetups..."
+					placeholder="Search for Meetups..."
 					placeholderTextColor={text}
 					value={searchQuery}
 					onChangeText={setSearchQuery}

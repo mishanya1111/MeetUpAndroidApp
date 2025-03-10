@@ -51,7 +51,7 @@ export default function MyMeetupsOwned() {
 	return (
 		<BackgroundView>
 			<View style={styles.container}>
-				<ThemedText style={styles.title}>Your meetups are you owned :</ThemedText>
+				<ThemedText style={styles.title}>Meetups you own:</ThemedText>
 				<DataLoader fetchFunction={fetchWithToken} />
 			</View>
 		</BackgroundView>

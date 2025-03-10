@@ -34,7 +34,7 @@ export default function MyMeetupsSubscriber() {
 		const queryParams = new URLSearchParams(params).toString();
 		console.log('userID' + userID);
 		console.log(
-			'url in ыгиыскшиук' +
+			'url in subscriber' +
 				`${USER_API_URL}${userID}/${MEETINGS_SIGNED}?` +
 				queryParams
 		);
@@ -54,7 +54,7 @@ export default function MyMeetupsSubscriber() {
 		<BackgroundView>
 			<View style={styles.container}>
 				<ThemedText style={styles.title}>
-					Your meetups are you subscribe :
+					Meetups you have subscribed to:
 				</ThemedText>
 				<DataLoader fetchFunction={fetchWithToken} />
 			</View>
