@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { Alert } from "react-native";
 import axios from 'axios';
 import { REGISTER_API_URL } from '@/constant/apiURL';
 import { useRouter } from 'expo-router';
@@ -21,11 +22,16 @@ export const useSignUp = () => {
 	}, []);
 
 	useEffect(() => {
-		console.log(formData);
+		// console.log(formData);
 	}, [formData]);
+
+	// SUBMIT:
 	const handleSubmit = useCallback(async () => {
-		console.log('registration start');
+		console.log('registration start with data: ');
+		console.log(formData);
+
 		setIsPending(true);
+
 		try {
 			const response = await axios.post(REGISTER_API_URL, formData);
 			console.log('Give date');
@@ -34,8 +40,13 @@ export const useSignUp = () => {
 			router.push(PROFILE);
 		} catch (error) {
 			console.log('lose date');
-			console.log(error);
-			console.log(error.toString());
+
+			if (error.response?.data?.email?.[0] === "user with this email already exists.") {
+				Alert.alert("Error!", "User with this email is already registered, you should login instead.");
+			} else {
+				setErrorMessage(JSON.stringify(error.response?.data, null, 2)); // Показываем другую ошибку
+			}
+
 			setErrorMessage(error.response?.data?.username[0]);
 		} finally {
 			setIsPending(false);

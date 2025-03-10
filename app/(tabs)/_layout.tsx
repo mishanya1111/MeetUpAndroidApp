@@ -5,8 +5,6 @@ import { HapticTab } from '@/components/InitComponent/HapticTab';
 import { useThemeColors } from '@/hooks/useThemeColors';
 
 export default function TabLayout() {
-	console.log('Rendering TabLayout...');
-
 	const { activeTabs, headerFooter, text } = useThemeColors();
 
 	const styles = StyleSheet.create({

@@ -2,7 +2,7 @@ import {useEffect, useState, useCallback} from 'react';
 import axios from 'axios';
 import { USER_API_URL } from '@/constant/apiURL';
 import { useAuth } from '@/context/AuthContext';
-import {getUserData} from "@/constant/userApi";
+import {getUserData, updateUserData} from "@/constant/userApi";
 
 interface UserProfile {
     first_name: string;
@@ -46,5 +46,18 @@ export const useProfile = () => {
         fetchData();
     }, [fetchData]);
 
-    return { userData, loading, error };
+    const updateProfile = async (updatedData: Partial<UserProfile>) => {
+        if (!userID || !token?.access) return;
+
+        try {
+            const updatedUser = await updateUserData(userID, token.access, updatedData);
+            if (updatedUser) {
+                setUserData(updatedUser);
+            }
+        } catch (error) {
+            console.error('Failed to update profile:', error);
+        }
+    };
+
+    return { userData, loading, error, updateProfile };
 };
