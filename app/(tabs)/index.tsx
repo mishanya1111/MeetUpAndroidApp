@@ -10,13 +10,14 @@ export default function HomeScreen() {
 		const queryParams = new URLSearchParams(params).toString();
 		console.log(queryParams);
 		const response = await axios.get(`${MEETINGS_API_URL}?${queryParams}`);
+		/*console.log(response)*/
 		return response.data;
 	};
 
 	return (
 		<BackgroundView>
 			<View style={styles.container}>
-				<DataLoader fetchFunction={fetchWithToken} />
+				<DataLoader fetchFunction={fetchWithToken} flatListHeight="80%" />
 			</View>
 		</BackgroundView>
 	);

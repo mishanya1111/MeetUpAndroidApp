@@ -5,3 +5,7 @@ export const TOKEN_API_URL = BASE_API_URL + 'token/';
 export const USER_API_URL = BASE_API_URL + 'users/';
 export const REGISTER_API_URL = USER_API_URL + 'register/';
 export const MEETUP_DETAILS_API_URL = BASE_API_URL + 'meetup-details/';
+
+export const MEETINGS_OWNED = 'meetings_owned';
+export const MEETINGS_SIGNED = 'meetings_signed';
+export const REFRESH_URL = BASE_API_URL + 'token/refresh/';

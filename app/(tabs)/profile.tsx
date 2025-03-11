@@ -1,9 +1,16 @@
-import { StyleSheet, Text, TouchableOpacity, View, Modal } from 'react-native';
+import {
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View,
+	Modal,
+	Button
+} from 'react-native';
 import { ThemeToggleButton } from '@/components/ThemeToggleButton';
 import { ThemedText } from '@/components/styleComponent/ThemedText';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
 import { useRouter } from 'expo-router';
-import { SIGN_IN } from '@/constant/router';
+import { CREATE_MEETUPS, SIGN_IN } from '@/constant/router';
 import { useAuth } from '@/context/AuthContext';
 import React, { useState } from 'react';
 import { useThemeColors } from '@/hooks/useThemeColors';
@@ -26,6 +33,7 @@ export default function Profile() {
 			{token ? (
 				<>
 					<ThemedText>Hello, {name}!</ThemedText>
+					<Button title="crete meetup" onPress={() => router.push(CREATE_MEETUPS)} />
 					<TouchableOpacity onPress={() => setShowModal(true)}>
 						<ThemedText style={styles.logoutButton}>Logout</ThemedText>
 					</TouchableOpacity>

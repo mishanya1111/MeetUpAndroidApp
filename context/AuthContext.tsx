@@ -6,6 +6,9 @@ import React, {
 	useCallback
 } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { jwtDecode } from 'jwt-decode'; // Если первый вариант не работает
+import { REFRESH_URL } from '@/constant/apiURL';
 
 interface AuthContextType {
 	token: { refresh: string; access: string } | null;
@@ -13,6 +16,7 @@ interface AuthContextType {
 	name: string | null;
 	saveToken: (newToken: { refresh: string; access: string }) => void;
 	removeToken: () => void;
+	refreshAccessToken: () => Promise<string | null>;
 	saveDate: (newDate: {
 		refresh: string;
 		access: string;
@@ -70,7 +74,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 			await saveToken({ refresh: newDate.refresh, access: newDate.access });
 			await saveName(newDate.username);
 			await saveId(newDate.user_id);
-			setLoading(false);
 		},
 		[saveToken, saveName, saveId]
 	);
@@ -84,6 +87,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 		await AsyncStorage.removeItem('ID');
 	}, []);
 
+	// Функция декодирования JWT и проверки срока действия
+	const isAccessTokenExpired = (accessToken: string): boolean => {
+		try {
+			const decoded: { exp: number } = jwtDecode(accessToken);
+			const now = Math.floor(Date.now() / 1000); // Текущее время в секундах
+			return decoded.exp < now; // Если `exp` меньше текущего времени — токен истёк
+		} catch (error) {
+			console.error('Ошибка при декодировании accessToken:', error);
+			return true; // Если не удалось декодировать — считаем токен недействительным
+		}
+	};
+
+	const refreshAccessToken = useCallback(async () => {
+		if (!token?.refresh) {
+			await removeToken();
+			return null;
+		}
+
+		try {
+			const response = await axios.post(REFRESH_URL, { refresh: token.refresh });
+			const newAccessToken = response.data.access;
+
+			// Обновляем только accessToken, refreshToken остаётся прежним
+			const updatedToken = { refresh: token.refresh, access: newAccessToken };
+			await saveToken(updatedToken);
+
+			return newAccessToken;
+		} catch (error) {
+			console.error('Ошибка обновления токена:', error);
+			await removeToken();
+			return null;
+		}
+	}, [token, saveToken, removeToken]);
+
+	// Проверяем токен при загрузке приложения
 	useEffect(() => {
 		const loadAuthData = async () => {
 			try {
@@ -91,21 +129,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 				const savedName = await AsyncStorage.getItem('name');
 				const savedID = await AsyncStorage.getItem('ID');
 
-				if (savedToken) setToken(JSON.parse(savedToken));
+				if (savedToken) {
+					const parsedToken = JSON.parse(savedToken);
+
+					if (isAccessTokenExpired(parsedToken.access)) {
+						// Если токен просрочен — обновляем
+						const newAccessToken = await refreshAccessToken();
+						if (newAccessToken) {
+							parsedToken.access = newAccessToken;
+							await saveToken(parsedToken);
+						} else {
+							// Если обновить не удалось — разлогиниваем
+							await removeToken();
+						}
+					} else {
+						// Если токен ещё валиден, просто загружаем его
+						setToken(parsedToken);
+					}
+				}
+
 				if (savedName) setName(savedName);
 				if (savedID) setUserID(Number(savedID));
 			} catch (error) {
-				console.error('Failed to load auth data:', error);
+				console.error('Ошибка при загрузке данных авторизации:', error);
 			} finally {
 				setLoading(false);
 			}
 		};
+
 		loadAuthData();
-	}, []);
+	}, [refreshAccessToken, saveToken, removeToken]);
 
 	return (
 		<AuthContext.Provider
-			value={{ token, userID, name, saveToken, removeToken, saveDate, loading }}
+			value={{
+				token,
+				userID,
+				name,
+				saveToken,
+				removeToken,
+				saveDate,
+				loading,
+				refreshAccessToken
+			}}
 		>
 			{!loading && children}
 		</AuthContext.Provider>

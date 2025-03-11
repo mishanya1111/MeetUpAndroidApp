@@ -1,15 +1,20 @@
 // DataLoader.tsx
 import React from 'react';
-import { View, ActivityIndicator, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { useMeetups } from '@/components/DataLoader/useMeetups';
 import FilterBar from '@/components/DataLoader/FilterBar';
 import MeetupCard from '@/components/MeetupCard';
+import Loader from '@/components/Loader';
 
 interface DataLoaderProps {
 	fetchFunction: (params: Record<string, string>) => Promise<any>;
+	flatListHeight?: string;
 }
 
-const DataLoader: React.FC<DataLoaderProps> = ({ fetchFunction }) => {
+const DataLoader: React.FC<DataLoaderProps> = ({
+	fetchFunction,
+	flatListHeight = '75%'
+}) => {
 	const {
 		meetups,
 		loading,
@@ -20,7 +25,10 @@ const DataLoader: React.FC<DataLoaderProps> = ({ fetchFunction }) => {
 		applyFilters,
 		searchParams
 	} = useMeetups(fetchFunction);
-	console.log(error);
+	if (error) {
+		console.log('Error in DataLoader:');
+		console.log(error);
+	}
 	return (
 		<View>
 			<FilterBar
@@ -33,12 +41,13 @@ const DataLoader: React.FC<DataLoaderProps> = ({ fetchFunction }) => {
 				applyFilters={applyFilters}
 			/>
 			{loading ? (
-				<ActivityIndicator size="large" style={styles.loader} />
+				/*<ActivityIndicator size="large" style={styles.loader} />*/
+				<Loader />
 			) : error ? (
 				<Text style={styles.errorText}>Error: {error}</Text>
 			) : (
 				<FlatList
-					style={{ height: '80%' }}
+					style={{ height: flatListHeight }}
 					data={meetups}
 					keyExtractor={item => item.id.toString()}
 					renderItem={({ item }) => <MeetupCard {...item} />}
