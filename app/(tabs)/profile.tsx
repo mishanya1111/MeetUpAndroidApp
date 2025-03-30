@@ -4,8 +4,10 @@ import { ThemeToggleButton } from '@/components/ThemeToggleButton';
 import { LoginNeededContainer } from '@/components/LoginNeededContainer';
 import { ThemedText } from '@/components/styleComponent/ThemedText';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
-import { useRouter } from 'expo-router';
 import { SIGN_IN } from '@/constant/router';
+import Loader from '@/components/Loader';
+import { CREATE_MEETUPS } from '@/constant/router';
+import {router, useRouter} from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { useProfile } from '@/hooks/useProfile';
@@ -14,7 +16,7 @@ import { ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function Profile() {
-    const { token, name, removeToken } = useAuth();
+    const { token, name, removeToken, saveName } = useAuth();
     const [ showModal, setShowModal ] = useState(false);
     const { headerFooter, buttonBg, text} = useThemeColors();
 
@@ -85,7 +87,10 @@ export default function Profile() {
             const updatedData = await updateProfile({ ...editableUserData, photo: photoUri });
 
             if (updatedData?.photo) {
-                setPhotoUri(updatedData.photo); // 🔥 Обновляем фото с сервера
+                setPhotoUri(updatedData.photo);
+            }
+            if (updatedData?.username && updatedData.username !== name) {
+                await saveName(updatedData.username);
             }
 
             console.log("Данные профиля успешно обновлены!");
@@ -99,7 +104,7 @@ export default function Profile() {
         <BackgroundView>
             <ScrollView contentContainerStyle={styles.container}>
                 {loading ? (
-                    <ActivityIndicator size="large" color="#0000ff" />
+                    <Loader />
                 ) : error ? (
                     <ThemedText>{error}</ThemedText>
                 ) : token ? (
@@ -181,6 +186,11 @@ export default function Profile() {
                             <Text style={styles.saveButtonText}>Save Changes</Text>
                         </TouchableOpacity>
 
+                        {/* Кнопка создания митапа */}
+                        <TouchableOpacity style={styles.createButton} onPress={() => router.push(CREATE_MEETUPS)}>
+                            <Text style={styles.createButtonText}>Create Meetup</Text>
+                        </TouchableOpacity>
+
                         {/* Кнопка выхода */}
                         <TouchableOpacity onPress={() => setShowModal(true)} style={styles.logoutButton}>
                             <Text style={styles.logoutButtonText}>Logout</Text>
@@ -190,7 +200,7 @@ export default function Profile() {
                     <>
                         <ThemeToggleButton />
 
-                        <LoginNeededContainer location="profile"/>
+                        <LoginNeededContainer message="You need to log in to view your profile and create meetups." />
                     </>
                 )}
             </ScrollView>
@@ -276,6 +286,19 @@ const styles = StyleSheet.create({
     saveButtonText: {
         color: '#fff',
         fontSize: 16
+    },
+    createButton: {
+        backgroundColor: '#3a6ff7',
+        paddingVertical: 10,
+        width: '80%',
+        borderRadius: 8,
+        marginTop: 30,
+        alignItems: 'center'
+    },
+    createButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold'
     },
     logoutButton: {
         backgroundColor: '#FF4500',

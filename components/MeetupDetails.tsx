@@ -45,7 +45,7 @@ const MeetupDetails = () => {
 			<BackgroundView>
 				<HeaderWithTitle title="Meetup details" />
 
-				<LoginNeededContainer location="meetup_details"/>
+				<LoginNeededContainer message="You need to log in to view meetup details." />
 			</BackgroundView>
 		);
 	}

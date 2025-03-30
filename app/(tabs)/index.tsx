@@ -3,6 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
 import axios from 'axios';
 import DataLoader from '@/components/DataLoader/DataLoader';
+import { ThemedText } from '@/components/styleComponent/ThemedText';
 import { MEETINGS_API_URL } from '@/constant/apiURL';
 
 export default function HomeScreen() {
@@ -17,6 +18,7 @@ export default function HomeScreen() {
 	return (
 		<BackgroundView>
 			<View style={styles.container}>
+				<ThemedText style={styles.title}>Meetups:</ThemedText>
 				<DataLoader fetchFunction={fetchWithToken} flatListHeight="80%" />
 			</View>
 		</BackgroundView>
@@ -36,5 +38,10 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 		color: 'red',
 		fontSize: 16
+	},
+	title: {
+		fontSize: 20,
+		fontWeight: 'bold',
+		marginBottom: 16
 	}
 });

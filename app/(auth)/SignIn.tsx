@@ -31,7 +31,7 @@ export default function SignIn() {
 
 	return (
 		<BackgroundView>
-			<HeaderWithTitle title="Log IN" />
+			<HeaderWithTitle title="Login" />
 			<View style={[styles.container, { backgroundColor: background }]}>
 				<Text style={[styles.title, { color: text }]}>Log In</Text>
 

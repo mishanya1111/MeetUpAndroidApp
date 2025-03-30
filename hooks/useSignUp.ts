@@ -39,15 +39,20 @@ export const useSignUp = () => {
 			console.log('Registration successful');
 			router.push(PROFILE);
 		} catch (error) {
-			console.log('lose date');
+			console.log('Registration error:', error.response?.data);
 
-			if (error.response?.data?.email?.[0] === "user with this email already exists.") {
-				Alert.alert("Error!", "User with this email is already registered, you should login instead.");
+			const data = error.response?.data;
+
+			if (data?.email?.[0] === "user with this email already exists.") {
+				setErrorMessage("User with this email is already registered. Please log in instead.");
+			} else if (data?.username?.[0]) {
+				setErrorMessage(data.username[0]);
+			} else if (typeof data === 'object') {
+				// fallback на json ошибок
+				setErrorMessage(JSON.stringify(data, null, 2));
 			} else {
-				setErrorMessage(JSON.stringify(error.response?.data, null, 2)); // Показываем другую ошибку
+				setErrorMessage("Registration failed. Please try again.");
 			}
-
-			setErrorMessage(error.response?.data?.username[0]);
 		} finally {
 			setIsPending(false);
 		}

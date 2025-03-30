@@ -4,25 +4,15 @@ import { ThemedText } from "@/components/styleComponent/ThemedText";
 import { SIGN_IN } from "@/constant/router";
 import { router } from "expo-router";
 
-// возможные типы сообщений
-type LoginMessageType = 'meetup_details' | 'owned_meetups' | 'subscribed_meetups' | 'profile';
-
-// пропсы компонента
+// пропсы
 interface LoginNeededContainerProps {
-    type: LoginMessageType;
+    message: string;
 }
 
-export function LoginNeededContainer({ location }: LoginNeededContainerProps) {
-    const messages: Record<LoginMessageType, string> = {
-        meetup_details: 'You need to log in to view meetup details.',
-        owned_meetups: 'You need to log in to view meetups you own.',
-        subscribed_meetups: 'You need to log in to view meetups you have subscribed to.',
-        profile: 'You need to log in to view your profile.'
-    };
-
+export function LoginNeededContainer({ message }: LoginNeededContainerProps) {
     return (
         <View style={styles.loginNeededContainer}>
-            <ThemedText>{messages[location]}</ThemedText>
+            <ThemedText>{message}</ThemedText>
 
             <TouchableOpacity onPress={() => router.push(SIGN_IN)} style={styles.loginButton}>
                 <Text style={styles.loginButtonText}>Login</Text>
