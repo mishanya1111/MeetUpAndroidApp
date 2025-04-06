@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { BASE, MEETUP } from '@/constant/router';
 import { MEETINGS_API_URL } from '@/constant/apiURL';
-import { giveConfig } from '@/utils/giveConfig';
+import {giveConfig, giveConfigWithContentType} from '@/utils/giveConfig';
 import { useAuth } from '@/context/AuthContext';
 
 interface FormData {
@@ -98,12 +98,11 @@ export const useCreateMeetup = () => {
 				console.log(pair[0], pair[1]);
 			}
 
-			const result = await axios.post(MEETINGS_API_URL, formDataToSend, {
-				headers: {
-					Authorization: `Bearer ${token?.access}`,
-					'Content-Type': 'multipart/form-data'
-				}
-			});
+			const result = await axios.post(
+				MEETINGS_API_URL,
+				formDataToSend,
+				giveConfigWithContentType(token)
+			);
 			const meetupId = result.data.id;
 
 			console.log(meetupId);
