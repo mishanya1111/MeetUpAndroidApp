@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
 import axios from 'axios';
 import DataLoader from '@/components/DataLoader/DataLoader';
@@ -9,22 +9,21 @@ import { useRouter } from 'expo-router';
 import { SIGN_IN } from '@/constant/router';
 import { ThemedText } from '@/components/styleComponent/ThemedText';
 import { Button } from 'react-native';
+import { CREATE_MEETUPS } from '@/constant/router';
+import { useThemeColors } from '@/hooks/useThemeColors';
 import { giveConfig } from '@/utils/giveConfig';
+import {LoginNeededContainer} from "@/components/LoginNeededContainer";
 
 export default function MyMeetupsOwned() {
 	const { token, userID } = useAuth(); // Достаём токен и userID из контекста
 	const router = useRouter();
+	const { buttonBg } = useThemeColors();
 
 	// Если нет токена — показываем просьбу войти в систему
 	if (!token) {
 		return (
 			<BackgroundView>
-				<View style={styles.authContainer}>
-					<ThemedText style={styles.authText}>
-						Please log in to view your meetups.
-					</ThemedText>
-					<Button title="Log In" onPress={() => router.push(SIGN_IN)} />
-				</View>
+				<LoginNeededContainer message="You need to log in to view meetups you own." />
 			</BackgroundView>
 		);
 	}
@@ -51,8 +50,13 @@ export default function MyMeetupsOwned() {
 	return (
 		<BackgroundView>
 			<View style={styles.container}>
-				<ThemedText style={styles.title}>Your meetups are you owned :</ThemedText>
-				<DataLoader fetchFunction={fetchWithToken} />
+				<ThemedText style={styles.title}>Meetups you own:</ThemedText>
+
+				<TouchableOpacity style={styles.createButton} onPress={() => router.push(CREATE_MEETUPS)}>
+					<Text style={styles.createButtonText}>Create Meetup</Text>
+				</TouchableOpacity>
+
+				<DataLoader fetchFunction={fetchWithToken} flatListHeight = "67%" />
 			</View>
 		</BackgroundView>
 	);
@@ -62,14 +66,17 @@ const styles = StyleSheet.create({
 	container: {
 		padding: 16
 	},
-	authContainer: {
-		flex: 1,
-		justifyContent: 'center',
+	createButton: {
+		backgroundColor: '#3a6ff7',
+		paddingVertical: 10,
+		borderRadius: 8,
+		marginBottom: 15,
 		alignItems: 'center'
 	},
-	authText: {
-		fontSize: 18,
-		marginBottom: 12
+	createButtonText: {
+		color: '#fff',
+		fontSize: 16,
+		fontWeight: 'bold'
 	},
 	title: {
 		fontSize: 20,

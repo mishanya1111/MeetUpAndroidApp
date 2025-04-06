@@ -19,13 +19,18 @@ export const useMeetupDetails = () => {
 
 	useEffect(() => {
 		const fetchMeetupData = async () => {
+			if (!id) return;
 			setLoading(true);
+			console.log('start fetching in detail');
+
 			try {
 				const response = await axios.get(`${MEETINGS_API_URL}${id}/`);
 				setMeetup(response.data);
 			} catch (err: any) {
 				setError(err.response?.data || err.message);
+				console.log('error in detail');
 			} finally {
+				console.log('finish fetching');
 				setLoading(false);
 			}
 		};
@@ -47,7 +52,7 @@ export const useMeetupDetails = () => {
 
 		fetchMeetupData();
 		if (token) checkIsFavorite();
-	}, [id, token]);
+	}, []);
 
 	const handleSignForMeeting = useCallback(async () => {
 		if (!token) {
