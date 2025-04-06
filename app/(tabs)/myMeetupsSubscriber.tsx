@@ -10,6 +10,7 @@ import { SIGN_IN } from '@/constant/router';
 import { ThemedText } from '@/components/styleComponent/ThemedText';
 import { Button } from 'react-native';
 import { giveConfig } from '@/utils/giveConfig';
+import {LoginNeededContainer} from "@/components/LoginNeededContainer";
 
 export default function MyMeetupsSubscriber() {
 	const { token, userID } = useAuth(); // Достаём токен и userID из контекста
@@ -19,12 +20,7 @@ export default function MyMeetupsSubscriber() {
 	if (!token) {
 		return (
 			<BackgroundView>
-				<View style={styles.authContainer}>
-					<ThemedText style={styles.authText}>
-						Please log in to view your meetups.
-					</ThemedText>
-					<Button title="Log In" onPress={() => router.push(SIGN_IN)} />
-				</View>
+				<LoginNeededContainer message="You need to log in to view meetups you have subscribed to." />
 			</BackgroundView>
 		);
 	}
@@ -34,7 +30,7 @@ export default function MyMeetupsSubscriber() {
 		const queryParams = new URLSearchParams(params).toString();
 		console.log('userID' + userID);
 		console.log(
-			'url in ыгиыскшиук' +
+			'url in subscriber' +
 				`${USER_API_URL}${userID}/${MEETINGS_SIGNED}?` +
 				queryParams
 		);
@@ -54,7 +50,7 @@ export default function MyMeetupsSubscriber() {
 		<BackgroundView>
 			<View style={styles.container}>
 				<ThemedText style={styles.title}>
-					Your meetups are you subscribe :
+					Meetups you have subscribed to:
 				</ThemedText>
 				<DataLoader fetchFunction={fetchWithToken} />
 			</View>

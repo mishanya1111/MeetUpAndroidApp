@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Platform, StatusBar, SafeAreaView } from 'react-native';
 import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface BackgroundViewProps {
@@ -9,8 +9,23 @@ interface BackgroundViewProps {
 export function BackgroundView({ children }: BackgroundViewProps) {
 	const { background } = useThemeColors();
 
+	// Стиль с учетом StatusBar
+	const containerStyle = [
+		styles.container,
+		{ backgroundColor: background, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }
+	];
+
+	// SafeAreaView для iOS
+	if (Platform.OS === 'ios') {
+		return (
+			<SafeAreaView style={containerStyle}>
+				{children}
+			</SafeAreaView>
+		);
+	}
+
 	return (
-		<View style={[styles.container, { backgroundColor: background }]}>
+		<View style={containerStyle}>
 			{children}
 		</View>
 	);
@@ -18,9 +33,9 @@ export function BackgroundView({ children }: BackgroundViewProps) {
 
 const styles = StyleSheet.create({
 	container: {
-		flex: 1, // Занимает весь экран
+		flex: 1,
 		width: '100%',
 		height: '100%',
-		padding: 20 // Отступы
+		paddingHorizontal: 20
 	}
 });

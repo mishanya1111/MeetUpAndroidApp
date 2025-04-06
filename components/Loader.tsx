@@ -1,9 +1,12 @@
 import { useThemeColors } from '@/hooks/useThemeColors';
-
 import React from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
 
-export default function Loader() {
+interface LoaderProps {
+	topOffset?: string;
+}
+
+export default function Loader({ topOffset = '70%' }: LoaderProps) {
 	const { handlePath } = useThemeColors();
 
 	// Анимация вращения
@@ -26,7 +29,7 @@ export default function Loader() {
 	});
 
 	return (
-		<View style={styles.loader}>
+		<View style={{ ...styles.loader, marginTop: topOffset }}>
 			<Animated.Image
 				source={handlePath}
 				style={[styles.logo, { transform: [{ rotate }] }]}

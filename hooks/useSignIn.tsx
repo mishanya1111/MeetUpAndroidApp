@@ -24,6 +24,8 @@ export const useSignIn = () => {
 		setIsPending(true);
 		try {
 			const response = await axios.post(TOKEN_API_URL, formData);
+
+			console.log(response);
 			saveDate(response.data);
 			console.log('successful');
 			router.push(PROFILE);

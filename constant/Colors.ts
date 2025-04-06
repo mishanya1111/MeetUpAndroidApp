@@ -4,7 +4,7 @@ export const Colors = {
 		headerFooter: '#26445e', //#151b23
 		text: '#fff',
 		description: '#afafaf',
-		buttonBg: '#151b23',
+		buttonBg: '#1c8139',
 		buttonBorder: '#10373d',
 		dropdownBg: '#1c242c',
 		dropdownShadow: '#ffffff1a',
