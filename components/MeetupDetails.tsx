@@ -19,8 +19,6 @@ import {LoginNeededContainer} from "@/components/LoginNeededContainer";
 import axios from "axios";
 import {MEETINGS_API_URL} from "@/constant/apiURL";
 import {giveConfig} from "@/utils/giveConfig";
-import { useFocusEffect } from '@react-navigation/native';
-import { useCallback } from 'react';
 
 const MeetupDetails = () => {
 	const { token } = useAuth();

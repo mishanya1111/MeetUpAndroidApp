@@ -17,5 +17,5 @@ export const MEETUP_DETAILS: `/${string}` = '/meetup-details';
 export const SIGN_IN: `/${string}` = '/SignIn';
 export const SIGN_UP: `/${string}` = '/SignUp';
 export const PROFILE: `/${string}` = '/profile';
-export const MEETUP: `/${string}` = '/meetup';
+export const MEETUP: `/${string}` = '/view-meetup';
 export const CREATE_MEETUPS: `/${string}` = '/create-meetup';

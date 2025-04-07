@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
     View, Text, TextInput, TouchableOpacity, Image,
-    StyleSheet, Platform, Linking, ScrollView
+    StyleSheet, Platform, Linking, ScrollView, Pressable
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
@@ -11,7 +11,7 @@ import axios from 'axios';
 import { MEETINGS_API_URL } from '@/constant/apiURL';
 import { useAuth } from '@/context/AuthContext';
 import * as ImagePicker from 'expo-image-picker';
-import {giveConfig} from "@/utils/giveConfig";
+import {giveConfig, giveConfigWithContentType} from "@/utils/giveConfig";
 import { Alert } from 'react-native';
 import {router} from "expo-router";
 
@@ -78,38 +78,73 @@ export default function CreateEditMeetup({ meetupId }: Props) {
             quality: 1,
         });
         if (!result.canceled) {
-            setFormData(prev => ({ ...prev, image: { uri: result.assets[0].uri } }));
+            setFormData(prev => ({
+                ...prev,
+                image: {
+                    uri: result.assets[0].uri,
+                    type: 'image/jpeg',
+                    name: `meetup_${Date.now()}.jpg`,
+                }
+            }));
         }
     };
 
     const handleSubmit = async () => {
         setLoading(true);
         setError(null);
+
         try {
+            let payload: any = formData;
+            let config = giveConfig(token);
+
+            const useFormData = !!formData.image;
+
+            if (useFormData) {
+                const form = new FormData();
+                Object.entries(formData).forEach(([key, value]) => {
+                    if (!value) return;
+
+                    if (key === 'image' && value) {
+                        form.append('image', {
+                            uri: value.uri,
+                            type: value.type || 'image/jpeg',
+                            name: value.name || `meetup_${Date.now()}.jpg`
+                        });
+                    } else {
+                        form.append(key, value);
+                    }
+                });
+
+                payload = form;
+                config = giveConfigWithContentType(token);
+            }
+
             if (isEditing) {
                 await axios.patch(
                     `${MEETINGS_API_URL}${meetupId}/`,
-                    formData,
-                    giveConfig(token)
+                    payload,
+                    config
                 );
                 Alert.alert("Success", "Meetup successfully updated!");
             } else {
                 await axios.post(
                     MEETINGS_API_URL,
-                    formData,
-                    giveConfig(token)
+                    payload,
+                    config
                 );
                 Alert.alert("Success", "Meetup successfully created!");
                 router.back();
             }
-        } catch (err) {
-            console.error(err);
+        } catch (err: any) {
+            console.error('ERROR RESPONSE:', err.response?.data || err.message);
             setError('Failed to submit meetup.');
             Alert.alert("Error", "Failed to submit meetup.");
         } finally {
             setLoading(false);
         }
     };
+
+
 
     const handleDateChange = (_event: any, selectedDate?: Date) => {
         setShowDatePicker(false);
@@ -169,41 +204,61 @@ export default function CreateEditMeetup({ meetupId }: Props) {
                 />
 
                 <Text style={[styles.label, { color: text }]}>Start Date and Time:</Text>
-                <TouchableOpacity onPress={() => setShowDatePicker(true)} style={{ width: '100%' }}>
-                    <TextInput
-                        style={styles.input}
-                        value={
-                            formData.datetime_beg
-                                ? new Date(formData.datetime_beg).toLocaleString()
-                                : ''
-                        }
-                        editable={false}
-                        placeholder="Pick date and time"
-                        placeholderTextColor="#aaa"
-                    />
-                </TouchableOpacity>
-
-                {showDatePicker && (
-                    <DateTimePicker
-                        value={
-                            formData.datetime_beg ? new Date(formData.datetime_beg) : new Date()
-                        }
-                        mode="date"
-                        display="default"
-                        onChange={handleDateChange}
-                    />
+                {Platform.OS === 'ios' && (
+                    <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 2 }}>
+                        <View>
+                            <DateTimePicker
+                                value={formData.datetime_beg ? new Date(formData.datetime_beg) : new Date()}
+                                mode="date"
+                                display="compact"
+                                onChange={handleDateChange}
+                            />
+                        </View>
+                        <View style={{ width: 100 }}>
+                            <DateTimePicker
+                                value={formData.datetime_beg ? new Date(formData.datetime_beg) : new Date()}
+                                mode="time"
+                                display="compact"
+                                onChange={handleTimeChange}
+                            />
+                        </View>
+                    </View>
                 )}
 
-                {showTimePicker && (
-                    <DateTimePicker
-                        value={
-                            formData.datetime_beg ? new Date(formData.datetime_beg) : new Date()
-                        }
-                        mode="time"
-                        display="default"
-                        onChange={handleTimeChange}
-                    />
+                {/* Android — единая кнопка выбора */}
+                {Platform.OS === 'android' && (
+                    <>
+                        <Pressable
+                            onPress={() => setShowDatePicker(true)}
+                            style={styles.input}
+                        >
+                            <Text style={{ color: '#000' }}>
+                                {formData.datetime_beg
+                                    ? new Date(formData.datetime_beg).toLocaleString()
+                                    : 'Pick date and time'}
+                            </Text>
+                        </Pressable>
+
+                        {showDatePicker && (
+                            <DateTimePicker
+                                value={formData.datetime_beg ? new Date(formData.datetime_beg) : new Date()}
+                                mode="date"
+                                display="default"
+                                onChange={handleDateChange}
+                            />
+                        )}
+
+                        {showTimePicker && (
+                            <DateTimePicker
+                                value={formData.datetime_beg ? new Date(formData.datetime_beg) : new Date()}
+                                mode="time"
+                                display="default"
+                                onChange={handleTimeChange}
+                            />
+                        )}
+                    </>
                 )}
+
 
                 <Text style={[styles.label, { color: text }]}>Link:</Text>
                 <TextInput
