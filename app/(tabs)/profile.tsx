@@ -14,13 +14,17 @@ import { Alert } from 'react-native';
 
 import * as ImagePicker from 'expo-image-picker';
 
-export default function Profile() {
+type ProfileProps = {
+    targetProfileId?: number;
+};
+
+export default function Profile({ targetProfileId }: ProfileProps) {
     const { token, name, removeToken, saveName } = useAuth();
     const [ showModal, setShowModal ] = useState(false);
     const { headerFooter, buttonBg, text} = useThemeColors();
     const [isSaving, setIsSaving] = useState(false);
+    const { userData, loading, error, updateProfile, isOwnProfile } = useProfile(targetProfileId);
 
-    const { userData, loading, error, updateProfile } = useProfile();
     const [editableUserData, setEditableUserData] = useState({
         first_name: '',
         last_name: '',
@@ -105,120 +109,154 @@ export default function Profile() {
         }
     };
 
+    let content = null;
+
+    if (loading) {
+        content = <Loader />;
+    } else if (error) {
+        content = <ThemedText>{error}</ThemedText>;
+    } else if (!token) {
+        content = (
+            <>
+                <ThemeToggleButton />
+                <LoginNeededContainer message="You need to log in to view your profile and create meetups." />
+            </>
+        );
+    } else if (isOwnProfile) {
+        content = (
+            <>
+                <ThemeToggleButton />
+
+                {/* Аватар + кнопка */}
+                <View style={styles.avatarContainer}>
+                    {photoUri && <Image source={{ uri: photoUri }} style={styles.profileImage} />}
+
+                    <TouchableOpacity style={[styles.uploadButton, { backgroundColor: buttonBg }]} onPress={handlePickImage}>
+                        <Text style={[styles.uploadButtonText, { color: "#f2f2f2" }]}>Upload photo</Text>
+                    </TouchableOpacity>
+                </View>
+
+                {/* Поля редактируемые */}
+                <View style={styles.infoContainer}>
+                    <Text style={[styles.label, { color: text }]}>Name:</Text>
+                    <TextInput
+                        style={styles.input}
+                        value={editableUserData.first_name || ''}
+                        onChangeText={(val) => handleChange('first_name', val)}
+                        placeholder="Enter your first name"
+                        placeholderTextColor="#aaa"
+                    />
+                    <Text style={[styles.label, { color: text }]}>Last Name:</Text>
+                    <TextInput
+                        style={styles.input}
+                        value={editableUserData.last_name || userData?.last_name || ''}
+                        onChangeText={(val) => handleChange('last_name', val)}
+                        placeholder="Enter your last name"
+                        placeholderTextColor="#aaa"
+                    />
+
+                    <Text style={[styles.label, { color: text }]}>Username:</Text>
+                    <TextInput
+                        style={styles.input}
+                        value={editableUserData.username || userData?.username || ''}
+                        onChangeText={(val) => handleChange('username', val)}
+                        placeholder="Enter your username"
+                        placeholderTextColor="#aaa"
+                    />
+
+                    <Text style={[styles.label, { color: text }]}>Email:</Text>
+                    <TextInput
+                        style={styles.input}
+                        value={editableUserData.email || userData?.email || ''}
+                        onChangeText={(val) => handleChange('email', val)}
+                        placeholder="Enter your email"
+                        keyboardType="email-address"
+                        placeholderTextColor="#aaa"
+                    />
+
+                    <Text style={[styles.label, { color: text }]}>About Me:</Text>
+                    <TextInput
+                        style={[styles.input, styles.descriptionInput]}
+                        value={editableUserData.user_description || userData?.user_description || ''}
+                        onChangeText={(val) => handleChange('user_description', val)}
+                        placeholder="Enter your profile description"
+                        multiline
+                        placeholderTextColor="#aaa"
+                    />
+
+                    <Text style={[styles.label, { color: text }]}>Telegram ID:</Text>
+                    <TextInput
+                        style={styles.input}
+                        value={editableUserData.tg_id || userData?.tg_id || ''}
+                        onChangeText={(val) => handleChange('tg_id', val)}
+                        placeholder="Enter your Telegram ID"
+                        placeholderTextColor="#aaa"
+                    />
+                </View>
+
+                <TouchableOpacity
+                    style={[styles.saveButton, isSaving && styles.disabledButton]}
+                    onPress={handleSaveChanges}
+                    disabled={isSaving}
+                >
+                    <Text style={styles.saveButtonText}>{isSaving ? 'Pending...' : 'Save Changes'}</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.createButton} onPress={() => router.push(CREATE_MEETUPS)}>
+                    <Text style={styles.createButtonText}>Create Meetup</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => setShowModal(true)} style={styles.logoutButton}>
+                    <Text style={styles.logoutButtonText}>Logout</Text>
+                </TouchableOpacity>
+            </>
+        );
+    } else {
+        content = (
+            <>
+                <View style={styles.avatarContainer}>
+                    {photoUri && <Image source={{ uri: photoUri }} style={styles.profileImage} />}
+                </View>
+
+                <View style={styles.infoContainer}>
+                    <View style={styles.infoBlock}>
+                        <Text style={[styles.label, { color: text }]}>Name:</Text>
+                        <ThemedText>{userData?.first_name || 'N/A'}</ThemedText>
+                    </View>
+
+                    <View style={styles.infoBlock}>
+                        <Text style={[styles.label, { color: text }]}>Last Name:</Text>
+                        <ThemedText>{userData?.last_name || 'N/A'}</ThemedText>
+                    </View>
+
+                    <View style={styles.infoBlock}>
+                        <Text style={[styles.label, { color: text }]}>Username:</Text>
+                        <ThemedText>{userData?.username || 'N/A'}</ThemedText>
+                    </View>
+
+                    <View style={styles.infoBlock}>
+                        <Text style={[styles.label, { color: text }]}>Email:</Text>
+                        <ThemedText>{userData?.email || 'N/A'}</ThemedText>
+                    </View>
+
+                    <View style={styles.infoBlock}>
+                        <Text style={[styles.label, { color: text }]}>About:</Text>
+                        <ThemedText>{userData?.user_description || 'N/A'}</ThemedText>
+                    </View>
+
+                    <View style={styles.infoBlock}>
+                        <Text style={[styles.label, { color: text }]}>Telegram ID:</Text>
+                        <ThemedText>{userData?.tg_id || 'N/A'}</ThemedText>
+                    </View>
+                </View>
+            </>
+        );
+    }
 
     return (
         <BackgroundView>
             <ScrollView contentContainerStyle={styles.container}>
-                {loading ? (
-                    <Loader />
-                ) : error ? (
-                    <ThemedText>{error}</ThemedText>
-                ) : token ? (
-                    <>
-                        {/* Переключатель темы */}
-                        <ThemeToggleButton />
-
-                        {/* Аватар */}
-                        <View style={styles.avatarContainer}>
-                            {photoUri && <Image source={{ uri: photoUri }} style={styles.profileImage} />}
-
-                            <TouchableOpacity style={[styles.uploadButton, { backgroundColor: buttonBg }]} onPress={handlePickImage}>
-                                <Text style={[styles.uploadButtonText, { color: "#f2f2f2" }]}>Upload photo</Text>
-                            </TouchableOpacity>
-
-                        </View>
-
-                        {/* Поля ввода */}
-                        <View style={styles.infoContainer}>
-                            <Text style={[styles.label, { color: text }]}>Name:</Text>
-                            <TextInput
-                                style={styles.input}
-                                value={editableUserData.first_name || userData?.first_name || ''}
-                                onChangeText={(val) => handleChange('first_name', val)}
-                                placeholder="Enter your first name"
-                                placeholderTextColor="#aaa"
-                            />
-
-                            <Text style={[styles.label, { color: text }]}>Last Name:</Text>
-                            <TextInput
-                                style={styles.input}
-                                value={editableUserData.last_name || userData?.last_name || ''}
-                                onChangeText={(val) => handleChange('last_name', val)}
-                                placeholder="Enter your last name"
-                                placeholderTextColor="#aaa"
-                            />
-
-                            <Text style={[styles.label, { color: text }]}>Username:</Text>
-                            <TextInput
-                                style={styles.input}
-                                value={editableUserData.username || userData?.username || ''}
-                                onChangeText={(val) => handleChange('username', val)}
-                                placeholder="Enter your username"
-                                placeholderTextColor="#aaa"
-                            />
-
-                            <Text style={[styles.label, { color: text }]}>Email:</Text>
-                            <TextInput
-                                style={styles.input}
-                                value={editableUserData.email || userData?.email || ''}
-                                onChangeText={(val) => handleChange('email', val)}
-                                placeholder="Enter your email"
-                                keyboardType="email-address"
-                                placeholderTextColor="#aaa"
-                            />
-
-                            <Text style={[styles.label, { color: text }]}>About Me:</Text>
-                            <TextInput
-                                style={[styles.input, styles.descriptionInput]}
-                                value={editableUserData.user_description || userData?.user_description || ''}
-                                onChangeText={(val) => handleChange('user_description', val)}
-                                placeholder="Enter your profile description"
-                                multiline
-                                placeholderTextColor="#aaa"
-                            />
-
-                            <Text style={[styles.label, { color: text }]}>Telegram ID:</Text>
-                            <TextInput
-                                style={styles.input}
-                                value={editableUserData.tg_id || userData?.tg_id || ''}
-                                onChangeText={(val) => handleChange('tg_id', val)}
-                                placeholder="Enter your Telegram ID"
-                                placeholderTextColor="#aaa"
-                            />
-                        </View>
-
-                        {/* Кнопка сохранения */}
-                        <TouchableOpacity
-                            style={[
-                                styles.saveButton,
-                                isSaving && styles.disabledButton
-                            ]}
-                            onPress={handleSaveChanges}
-                            disabled={isSaving}
-                        >
-                            <Text style={styles.saveButtonText}>
-                                {isSaving ? 'Pending...' : 'Save Changes'}
-                            </Text>
-                        </TouchableOpacity>
-
-
-                        {/* Кнопка создания митапа */}
-                        <TouchableOpacity style={styles.createButton} onPress={() => router.push(CREATE_MEETUPS)}>
-                            <Text style={styles.createButtonText}>Create Meetup</Text>
-                        </TouchableOpacity>
-
-                        {/* Кнопка выхода */}
-                        <TouchableOpacity onPress={() => setShowModal(true)} style={styles.logoutButton}>
-                            <Text style={styles.logoutButtonText}>Logout</Text>
-                        </TouchableOpacity>
-                    </>
-                ) : (
-                    <>
-                        <ThemeToggleButton />
-
-                        <LoginNeededContainer message="You need to log in to view your profile and create meetups." />
-                    </>
-                )}
+                {content}
             </ScrollView>
 
             {/* Модальное окно выхода */}
@@ -231,10 +269,12 @@ export default function Profile() {
                 <View style={styles.modalOverlay}>
                     <View style={[styles.modalContent, { backgroundColor: headerFooter }]}>
                         <ThemedText>Are you sure you want to log out?</ThemedText>
+
                         <View style={styles.modalButtons}>
                             <TouchableOpacity onPress={handleLogout} style={styles.confirmButton}>
                                 <Text style={styles.confirmButtonText}>Yes</Text>
                             </TouchableOpacity>
+
                             <TouchableOpacity onPress={() => setShowModal(false)} style={styles.cancelButton}>
                                 <Text style={styles.cancelButtonText}>No</Text>
                             </TouchableOpacity>
@@ -290,6 +330,9 @@ const styles = StyleSheet.create({
     descriptionInput: {
         height: 100,
         textAlignVertical: 'top'
+    },
+    infoBlock: {
+        marginBottom: 15,
     },
     saveButton: {
         backgroundColor: '#1c8139',

@@ -72,6 +72,14 @@ const MeetupDetails = () => {
 		);
 	}
 
+	const handleOpenAuthorProfile = () => {
+		if (meetup?.author_id === userID) {
+			router.push('/(tabs)/profile');
+		} else {
+			router.push(`/profile/${meetup?.author_id}`);
+		}
+	};
+
 	const handleDeleteMeetup = () => {
 		Alert.alert(
 			'Confirm Deletion',
@@ -111,7 +119,7 @@ const MeetupDetails = () => {
 				<View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 8 }}>
 					<Text style={[styles.author, { color: descriptionColor }]}>Author: </Text>
 
-					<TouchableOpacity onPress={() => router.push(`/profile/${meetup?.author_id}`)}>
+					<TouchableOpacity onPress={handleOpenAuthorProfile}>
 						<Text style={[styles.author, { color: primaryLink }]}>{meetup?.author || 'Unknown'}</Text>
 					</TouchableOpacity>
 				</View>
