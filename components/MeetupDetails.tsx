@@ -4,7 +4,6 @@ import {
 	View,
 	Text,
 	Image,
-	Button,
 	Linking,
 	StyleSheet,
 	ScrollView, TouchableOpacity, Alert
@@ -14,17 +13,17 @@ import { useRouter } from 'expo-router';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { useAuth } from '@/context/AuthContext';
-import { ThemedText } from '@/components/styleComponent/ThemedText';
-import {CREATE_MEETUPS, MEETUP, SIGN_IN} from '@/constant/router';
 import HeaderWithTitle from '@/components/headerWithTitle';
 import Loader from '@/components/Loader';
 import {LoginNeededContainer} from "@/components/LoginNeededContainer";
 import axios from "axios";
 import {MEETINGS_API_URL} from "@/constant/apiURL";
-import {giveConfig} from "@/utils/giveConfig"; // Для иконки стрелочки назад
+import {giveConfig} from "@/utils/giveConfig";
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 const MeetupDetails = () => {
-	const { token } = useAuth(); // Достаём токен и userID из контекста
+	const { token } = useAuth();
 	const router = useRouter();
 	const {
 		handlePath,
@@ -32,7 +31,6 @@ const MeetupDetails = () => {
 		primaryLink,
 		description: descriptionColor
 	} = useThemeColors();
-	// Если нет токена — показываем просьбу войти в систему
 	const {
 		meetup,
 		loading,
@@ -154,7 +152,9 @@ const MeetupDetails = () => {
 				{userID === meetup?.author_id ? (
 					<View>
 						<TouchableOpacity style={[styles.button, styles.editButton]}
-										  onPress={() => router.push(`/editMeetup/${meetup?.id}`)}>
+										  onPress={() => {
+											  router.push(`/edit-meetup/${meetup?.id}`);
+										  }}>
 							<Text style={styles.buttonText}>Edit Meetup</Text>
 						</TouchableOpacity>
 

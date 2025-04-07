@@ -109,7 +109,7 @@ export default function Profile({ targetProfileId }: ProfileProps) {
         }
     };
 
-    let content = null;
+    let content: React.JSX.Element;
 
     if (loading) {
         content = <Loader />;
