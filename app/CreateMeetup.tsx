@@ -1,21 +1,25 @@
 import React, { useState } from 'react';
 import {
 	View,
-	TextInput,
-	Button,
 	Text,
-	StyleSheet,
+	TextInput,
 	TouchableOpacity,
 	Image,
+	StyleSheet,
+	Platform,
 	Linking,
-	Platform
+	ScrollView
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useCreateMeetup } from '@/hooks/useCreateMeetup';
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { BackgroundView } from '@/components/styleComponent/BackgroundView';
+import HeaderWithTitle from '@/components/headerWithTitle';
 
-const CreateMeetup = () => {
-	const { formData, handleChange, pickImage, handleSubmit, loading, error } =
-		useCreateMeetup();
+export default function CreateMeetup() {
+	const { formData, handleChange, pickImage, handleSubmit, loading, error } = useCreateMeetup();
+	const { text } = useThemeColors();
+
 	const [showDatePicker, setShowDatePicker] = useState(false);
 	const [showTimePicker, setShowTimePicker] = useState(false);
 
@@ -40,107 +44,179 @@ const CreateMeetup = () => {
 	};
 
 	return (
-		<View style={styles.container}>
-			<TextInput
-				style={styles.input}
-				placeholder="Title"
-				value={formData.title}
-				onChangeText={text => handleChange('title', text)}
-			/>
-			<TextInput
-				style={styles.input}
-				placeholder="Description"
-				value={formData.description}
-				onChangeText={text => handleChange('description', text)}
-			/>
-			<TouchableOpacity onPress={() => setShowDatePicker(true)}>
+		<BackgroundView>
+			<ScrollView contentContainerStyle={styles.container}>
+				<View style={styles.headerContainer}>
+					<HeaderWithTitle title="Create Meetup" />
+				</View>
+
+				{formData.image && (
+					<Image source={{ uri: formData.image.uri }} style={styles.image} />
+				)}
+
+				<TouchableOpacity
+					style={[styles.button, styles.blueButton, { marginTop: 10 }]}
+					onPress={pickImage}
+				>
+					<Text style={styles.buttonText}>Upload Image</Text>
+				</TouchableOpacity>
+
+				<Text style={[styles.label, { color: text }]}>Title:</Text>
 				<TextInput
 					style={styles.input}
-					placeholder="Start Date and Time"
-					value={
-						formData.datetime_beg
-							? new Date(formData.datetime_beg).toLocaleString()
-							: ''
-					}
-					editable={false}
+					value={formData.title}
+					onChangeText={text => handleChange('title', text)}
+					placeholder="Enter title"
+					placeholderTextColor="#aaa"
 				/>
-			</TouchableOpacity>
 
-			{showDatePicker && (
-				<DateTimePicker
-					value={
-						formData.datetime_beg ? new Date(formData.datetime_beg) : new Date()
-					}
-					mode="date"
-					display="default"
-					onChange={handleDateChange}
+				<Text style={[styles.label, { color: text }]}>Description:</Text>
+				<TextInput
+					style={[styles.input, styles.descriptionInput]}
+					value={formData.description}
+					onChangeText={text => handleChange('description', text)}
+					placeholder="Enter description"
+					placeholderTextColor="#aaa"
+					multiline
 				/>
-			)}
 
-			{showTimePicker && (
-				<DateTimePicker
-					value={
-						formData.datetime_beg ? new Date(formData.datetime_beg) : new Date()
-					}
-					mode="time"
-					display="default"
-					onChange={handleTimeChange}
-				/>
-			)}
-
-			<TextInput
-				style={styles.input}
-				placeholder="Link"
-				value={formData.link}
-				keyboardType="url"
-				onChangeText={text => handleChange('link', text)}
-			/>
-
-			{formData.link ? (
-				<TouchableOpacity onPress={() => Linking.openURL(formData.link)}>
-					<Text style={styles.link}>Open Link</Text>
+				<Text style={[styles.label, { color: text }]}>Start Date and Time:</Text>
+				<TouchableOpacity onPress={() => setShowDatePicker(true)} style={{ width: '100%' }}>
+					<TextInput
+						style={styles.input}
+						value={
+							formData.datetime_beg
+								? new Date(formData.datetime_beg).toLocaleString()
+								: ''
+						}
+						editable={false}
+						placeholder="Pick date and time"
+						placeholderTextColor="#aaa"
+					/>
 				</TouchableOpacity>
-			) : (
-				<Text style={styles.noLink}>No link provided</Text>
-			)}
 
-			{formData.image && (
-				<Image source={{ uri: formData.image.uri }} style={styles.image} />
-			)}
+				{showDatePicker && (
+					<DateTimePicker
+						value={
+							formData.datetime_beg ? new Date(formData.datetime_beg) : new Date()
+						}
+						mode="date"
+						display="default"
+						onChange={handleDateChange}
+					/>
+				)}
 
-			<Button title="Upload Image" onPress={pickImage} />
-			<Button title="Create Meetup" onPress={handleSubmit} disabled={loading} />
+				{showTimePicker && (
+					<DateTimePicker
+						value={
+							formData.datetime_beg ? new Date(formData.datetime_beg) : new Date()
+						}
+						mode="time"
+						display="default"
+						onChange={handleTimeChange}
+					/>
+				)}
 
-			{error && <Text style={styles.errorText}>{error}</Text>}
-		</View>
+				<Text style={[styles.label, { color: text }]}>Link:</Text>
+				<TextInput
+					style={styles.input}
+					value={formData.link}
+					onChangeText={text => handleChange('link', text)}
+					placeholder="Enter link"
+					placeholderTextColor="#aaa"
+					keyboardType="url"
+				/>
+
+				{formData.link ? (
+					<TouchableOpacity onPress={() => Linking.openURL(formData.link)}>
+						<Text style={[styles.link, { color: '#3a6ff7' }]}>Open Link</Text>
+					</TouchableOpacity>
+				) : (
+					<Text style={[styles.noLink, { color: text }]}>No link provided</Text>
+				)}
+
+				<TouchableOpacity
+					style={[styles.button, styles.greenButton, loading && styles.disabledButton]}
+					onPress={handleSubmit}
+					disabled={loading}
+				>
+					<Text style={styles.buttonText}>
+						{loading ? 'Creating...' : 'Create Meetup'}
+					</Text>
+				</TouchableOpacity>
+
+				{error && <Text style={styles.errorText}>{error}</Text>}
+			</ScrollView>
+		</BackgroundView>
 	);
-};
+}
 
 const styles = StyleSheet.create({
 	container: {
-		padding: 16
+		alignItems: 'center',
+		padding: 20
+	},
+	headerContainer: {
+		alignSelf: 'flex-start',
+		width: '100%',
+		marginBottom: 10,
+	},
+	label: {
+		alignSelf: 'flex-start',
+		fontSize: 14,
+		fontWeight: 'bold',
+		marginBottom: 4,
 	},
 	input: {
+		backgroundColor: '#fff',
+		borderRadius: 8,
+		padding: 10,
+		marginBottom: 12,
 		borderWidth: 1,
 		borderColor: '#ccc',
-		borderRadius: 8,
-		padding: 8,
-		marginBottom: 12
+		width: '100%',
+		maxWidth: 400
+	},
+	descriptionInput: {
+		height: 100,
+		textAlignVertical: 'top'
 	},
 	image: {
-		width: 100,
-		height: 100,
+		width: 120,
+		height: 120,
 		borderRadius: 8,
 		marginBottom: 12
 	},
 	link: {
-		color: 'blue',
+		marginBottom: 12,
 		textDecorationLine: 'underline',
-		marginBottom: 12
+		fontWeight: 'bold'
 	},
 	noLink: {
-		color: '#888',
 		marginBottom: 12
+	},
+	button: {
+		paddingVertical: 10,
+		width: '80%',
+		borderRadius: 8,
+		alignItems: 'center',
+		marginTop: 15
+	},
+	blueButton: {
+		backgroundColor: '#3a6ff7',
+		marginTop: 5,
+		marginBottom: 20
+	},
+	greenButton: {
+		backgroundColor: '#1c8139',
+	},
+	disabledButton: {
+		opacity: 0.6
+	},
+	buttonText: {
+		color: '#fff',
+		fontSize: 16,
+		fontWeight: 'bold'
 	},
 	errorText: {
 		color: 'red',
@@ -148,5 +224,3 @@ const styles = StyleSheet.create({
 		marginTop: 8
 	}
 });
-
-export default CreateMeetup;
