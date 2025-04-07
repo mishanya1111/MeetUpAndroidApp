@@ -20,7 +20,7 @@ export default function MyMeetupsSubscriber() {
 	if (!token) {
 		return (
 			<BackgroundView>
-				<LoginNeededContainer location="subscribed_meetups"/>
+				<LoginNeededContainer message="You need to log in to view meetups you have subscribed to." />
 			</BackgroundView>
 		);
 	}

@@ -4,19 +4,21 @@ import { ThemeToggleButton } from '@/components/ThemeToggleButton';
 import { LoginNeededContainer } from '@/components/LoginNeededContainer';
 import { ThemedText } from '@/components/styleComponent/ThemedText';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
-import { useRouter } from 'expo-router';
-import { SIGN_IN } from '@/constant/router';
+import Loader from '@/components/Loader';
+import { CREATE_MEETUPS } from '@/constant/router';
+import {router} from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { useProfile } from '@/hooks/useProfile';
-import { ActivityIndicator } from 'react-native';
+import { Alert } from 'react-native';
 
 import * as ImagePicker from 'expo-image-picker';
 
 export default function Profile() {
-    const { token, name, removeToken } = useAuth();
+    const { token, name, removeToken, saveName } = useAuth();
     const [ showModal, setShowModal ] = useState(false);
     const { headerFooter, buttonBg, text} = useThemeColors();
+    const [isSaving, setIsSaving] = useState(false);
 
     const { userData, loading, error, updateProfile } = useProfile();
     const [editableUserData, setEditableUserData] = useState({
@@ -79,18 +81,27 @@ export default function Profile() {
     };
 
     const handleSaveChanges = async () => {
+        setIsSaving(true);
         try {
             console.log("Отправляемые данные:", { ...editableUserData, photo: photoUri });
 
             const updatedData = await updateProfile({ ...editableUserData, photo: photoUri });
 
             if (updatedData?.photo) {
-                setPhotoUri(updatedData.photo); // 🔥 Обновляем фото с сервера
+                setPhotoUri(updatedData.photo);
             }
 
+            if (updatedData?.username && updatedData.username !== name) {
+                await saveName(updatedData.username);
+            }
+
+            Alert.alert("Success", "Данные профиля успешно обновлены!");
             console.log("Данные профиля успешно обновлены!");
         } catch (error) {
             console.error("Ошибка обновления профиля:", error);
+            Alert.alert("Error", "Failed to update your profile. Please try again.");
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -99,7 +110,7 @@ export default function Profile() {
         <BackgroundView>
             <ScrollView contentContainerStyle={styles.container}>
                 {loading ? (
-                    <ActivityIndicator size="large" color="#0000ff" />
+                    <Loader />
                 ) : error ? (
                     <ThemedText>{error}</ThemedText>
                 ) : token ? (
@@ -177,8 +188,23 @@ export default function Profile() {
                         </View>
 
                         {/* Кнопка сохранения */}
-                        <TouchableOpacity style={styles.saveButton} onPress={handleSaveChanges}>
-                            <Text style={styles.saveButtonText}>Save Changes</Text>
+                        <TouchableOpacity
+                            style={[
+                                styles.saveButton,
+                                isSaving && styles.disabledButton
+                            ]}
+                            onPress={handleSaveChanges}
+                            disabled={isSaving}
+                        >
+                            <Text style={styles.saveButtonText}>
+                                {isSaving ? 'Pending...' : 'Save Changes'}
+                            </Text>
+                        </TouchableOpacity>
+
+
+                        {/* Кнопка создания митапа */}
+                        <TouchableOpacity style={styles.createButton} onPress={() => router.push(CREATE_MEETUPS)}>
+                            <Text style={styles.createButtonText}>Create Meetup</Text>
                         </TouchableOpacity>
 
                         {/* Кнопка выхода */}
@@ -190,7 +216,7 @@ export default function Profile() {
                     <>
                         <ThemeToggleButton />
 
-                        <LoginNeededContainer location="profile"/>
+                        <LoginNeededContainer message="You need to log in to view your profile and create meetups." />
                     </>
                 )}
             </ScrollView>
@@ -273,9 +299,25 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginTop: 15
     },
+    disabledButton: {
+        opacity: 0.6
+    },
     saveButtonText: {
         color: '#fff',
         fontSize: 16
+    },
+    createButton: {
+        backgroundColor: '#3a6ff7',
+        paddingVertical: 10,
+        width: '80%',
+        borderRadius: 8,
+        marginTop: 30,
+        alignItems: 'center'
+    },
+    createButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold'
     },
     logoutButton: {
         backgroundColor: '#FF4500',
