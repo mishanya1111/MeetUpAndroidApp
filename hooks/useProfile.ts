@@ -15,27 +15,25 @@ interface UserProfile {
     photo: string | null;
 }
 
-export const useProfile = () => {
+export const useProfile = (targetProfileId?: number) => {
     const { userID, token } = useAuth();
+    const actualUserId = targetProfileId ?? userID;
+    const isOwnProfile = targetProfileId === undefined || targetProfileId === userID;
+
     const [userData, setUserData] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!userID || !token?.access) {
+        if (!actualUserId || !token?.access) {
             setLoading(false);
             return;
         }
 
         const fetchData = async () => {
-            if (!userID || !token?.access) {
-                setLoading(false);
-                return;
-            }
-
             setLoading(true);
             try {
-                const data = await getUserData(userID, token);
+                const data = await getUserData(actualUserId, token);
                 setUserData(data);
             } catch (err) {
                 setError('Failed to load profile');
@@ -45,7 +43,7 @@ export const useProfile = () => {
         };
 
         fetchData();
-    }, []);
+    }, [actualUserId, token?.access]);
 
     const getUserData = async (userID: number | null, token: object | undefined) => {
         try {
@@ -96,17 +94,20 @@ export const useProfile = () => {
     };
 
     const updateProfile = async (updatedData: Partial<UserProfile>) => {
-        if (!userID || !token?.access) return;
+        if (!userID || !token?.access) return null;
 
         try {
             const updatedUser = await updateUserData(userID, token, updatedData);
             if (updatedUser) {
                 setUserData(updatedUser);
             }
+            return updatedUser;
         } catch (error) {
             console.error('Failed to update profile:', error);
+            return null;
         }
     };
 
-    return { userData, loading, error, updateProfile };
+
+    return { userData, loading, error, updateProfile, isOwnProfile };
 };

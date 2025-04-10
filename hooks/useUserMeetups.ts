@@ -3,6 +3,7 @@ import axios from 'axios';
 import { USER_API_URL } from '@/constant/apiURL';
 import { giveConfig } from '@/utils/giveConfig';
 import { useAuth } from '@/context/AuthContext';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface Meetup {
 	id: number;
@@ -29,36 +30,39 @@ export const useUserMeetups = (path: string) => {
 	});
 	const { token, userID } = useAuth();
 
-	useEffect(() => {
-		const fetchMeetups = async () => {
-			if (!token || !userID) return; // Если нет токена или userID — не грузим данные
-			setLoading(true);
-			setError(null);
-			try {
-				console.log('start');
-				const response = await axios.get(
-					`${USER_API_URL}${userID}/${path}/`,
-					giveConfig(token)
-				);
-				console.log('end');
-				const results = response.data || [];
-				setMeetups(
-					results.map((item: any) => ({
-						id: item.id,
-						title: item.title,
-						description: item.description,
-						image: item.image || require('@/assets/img/icon.png'),
-						dateTime: item.datetime_beg
-					}))
-				);
-			} catch (err: any) {
-				setError(err.response?.data?.message || 'Something went wrong');
-			} finally {
-				setLoading(false);
-			}
-		};
-		fetchMeetups();
-	}, [userID, token, path]);
+	const fetchMeetups = async () => {
+		if (!token || !userID) return; // Если нет токена или userID — не грузим данные
+		setLoading(true);
+		setError(null);
+		try {
+			console.log('start');
+			const response = await axios.get(
+				`${USER_API_URL}${userID}/${path}/`,
+				giveConfig(token)
+			);
+			console.log('end');
+			const results = response.data || [];
+			setMeetups(
+				results.map((item: any) => ({
+					id: item.id,
+					title: item.title,
+					description: item.description,
+					image: item.image || require('@/assets/img/icon.png'),
+					dateTime: item.datetime_beg
+				}))
+			);
+		} catch (err: any) {
+			setError(err.response?.data?.message || 'Something went wrong');
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useFocusEffect(
+		useCallback(() => {
+			fetchMeetups();
+		}, [userID, token, path])
+	);
 
 	const handleSearchChange = useCallback((query: string) => {
 		setSearchQuery(query);
