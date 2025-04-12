@@ -6,18 +6,14 @@ import DataLoader from '@/components/DataLoader/DataLoader';
 import { MEETINGS_OWNED, USER_API_URL } from '@/constant/apiURL';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'expo-router';
-import { SIGN_IN } from '@/constant/router';
 import { ThemedText } from '@/components/styleComponent/ThemedText';
-import { Button } from 'react-native';
 import { CREATE_MEETUPS } from '@/constant/router';
-import { useThemeColors } from '@/hooks/useThemeColors';
 import { giveConfig } from '@/utils/giveConfig';
 import {LoginNeededContainer} from "@/components/LoginNeededContainer";
 
 export default function MyMeetupsOwned() {
 	const { token, userID } = useAuth(); // Достаём токен и userID из контекста
 	const router = useRouter();
-	const { buttonBg } = useThemeColors();
 
 	// Если нет токена — показываем просьбу войти в систему
 	if (!token) {
@@ -44,6 +40,7 @@ export default function MyMeetupsOwned() {
 			console.log(response)
 		}*/
 		//response.data.results = response.data; // как влад починит - убрать!!!!!!!
+		console.log(response.data.results.map(it => it.title));
 		return response.data;
 	};
 

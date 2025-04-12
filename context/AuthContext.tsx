@@ -23,6 +23,7 @@ interface AuthContextType {
 		username: string;
 		user_id: number;
 	}) => void;
+	saveName: (name :string) => void;
 	loading: boolean;
 }
 
@@ -170,7 +171,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 				removeToken,
 				saveDate,
 				loading,
-				refreshAccessToken
+				refreshAccessToken,
+				saveName
 			}}
 		>
 			{!loading && children}

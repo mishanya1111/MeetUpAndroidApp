@@ -24,6 +24,19 @@ export const useProfile = (targetProfileId?: number) => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
+    const getUserData = async (userID: number | null, token: object | undefined) => {
+        try {
+            const response = await axios.get(
+              `${USER_API_URL}${userID}/`,
+              giveConfig(token)
+            );
+            return response.data;
+        } catch (error) {
+            console.error('Ошибка загрузки данных пользователя:', error);
+            return null;
+        }
+    };
+
     useEffect(() => {
         if (!actualUserId || !token?.access) {
             setLoading(false);
@@ -45,18 +58,7 @@ export const useProfile = (targetProfileId?: number) => {
         fetchData();
     }, [actualUserId, token?.access]);
 
-    const getUserData = async (userID: number | null, token: object | undefined) => {
-        try {
-            const response = await axios.get(
-                `${USER_API_URL}${userID}/`,
-                giveConfig(token)
-            );
-            return response.data;
-        } catch (error) {
-            console.error('Ошибка загрузки данных пользователя:', error);
-            return null;
-        }
-    };
+
     const updateUserData = async (userID: number, token: object | undefined, userData: any) => {
         try {
             const formData = new FormData();
