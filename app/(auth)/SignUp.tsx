@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-	View,
-	Text,
-	TextInput,
-	Button,
-	TouchableOpacity,
-	StyleSheet
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSignUp } from '@/hooks/useSignUp';
 import { useRouter } from 'expo-router';
 import { SIGN_IN } from '@/constant/router';
@@ -52,16 +45,26 @@ export default function SignUp() {
 					secureTextEntry
 				/>
 
-				{errorMessage ? <Text style={[styles.error, { color: 'red' }]}>{errorMessage}</Text> : null}
+				{errorMessage ? (
+					<Text style={[styles.error, { color: 'red' }]}>{errorMessage}</Text>
+				) : null}
 
 				{/* Кнопка регистрации */}
-				<TouchableOpacity onPress={handleSubmit} style={[styles.loginButton, { backgroundColor: buttonBg }]} disabled={isPending}>
-					<Text style={styles.loginButtonText}>{isPending ? 'Signing Up...' : 'Sign Up'}</Text>
+				<TouchableOpacity
+					onPress={handleSubmit}
+					style={[styles.loginButton, { backgroundColor: buttonBg }]}
+					disabled={isPending}
+				>
+					<Text style={styles.loginButtonText}>
+						{isPending ? 'Signing Up...' : 'Sign Up'}
+					</Text>
 				</TouchableOpacity>
 
 				{/* Ссылка "Sign In!" теперь интерактивная */}
 				<TouchableOpacity onPress={() => router.push(SIGN_IN)}>
-					<Text style={[styles.link, { color: primaryLink }]}>Already have an account? <Text style={styles.underline}>Sign in!</Text></Text>
+					<Text style={[styles.link, { color: primaryLink }]}>
+						Already have an account? <Text style={styles.underline}>Sign in!</Text>
+					</Text>
 				</TouchableOpacity>
 			</View>
 		</BackgroundView>
@@ -73,11 +76,11 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
-		padding: 20,
+		padding: 20
 	},
 	title: {
 		fontSize: 24,
-		marginBottom: 20,
+		marginBottom: 20
 	},
 	input: {
 		borderWidth: 1,
@@ -85,10 +88,10 @@ const styles = StyleSheet.create({
 		marginBottom: 12,
 		width: '100%',
 		maxWidth: 350,
-		borderRadius: 8,
+		borderRadius: 8
 	},
 	error: {
-		marginBottom: 10,
+		marginBottom: 10
 	},
 	loginButton: {
 		backgroundColor: '#3a6ff7',

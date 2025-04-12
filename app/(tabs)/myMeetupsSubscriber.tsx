@@ -5,16 +5,13 @@ import axios from 'axios';
 import DataLoader from '@/components/DataLoader/DataLoader';
 import { MEETINGS_SIGNED, USER_API_URL } from '@/constant/apiURL';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'expo-router';
-import { SIGN_IN } from '@/constant/router';
+
 import { ThemedText } from '@/components/styleComponent/ThemedText';
-import { Button } from 'react-native';
 import { giveConfig } from '@/utils/giveConfig';
-import {LoginNeededContainer} from "@/components/LoginNeededContainer";
+import { LoginNeededContainer } from '@/components/LoginNeededContainer';
 
 export default function MyMeetupsSubscriber() {
 	const { token, userID } = useAuth(); // Достаём токен и userID из контекста
-	const router = useRouter();
 
 	// Если нет токена — показываем просьбу войти в систему
 	if (!token) {
@@ -49,9 +46,7 @@ export default function MyMeetupsSubscriber() {
 	return (
 		<BackgroundView>
 			<View style={styles.container}>
-				<ThemedText style={styles.title}>
-					Meetups you have subscribed to:
-				</ThemedText>
+				<ThemedText style={styles.title}>Meetups you have subscribed to:</ThemedText>
 				<DataLoader fetchFunction={fetchWithToken} />
 			</View>
 		</BackgroundView>

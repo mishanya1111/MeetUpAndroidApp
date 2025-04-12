@@ -6,7 +6,9 @@ import {
 	Image,
 	Linking,
 	StyleSheet,
-	ScrollView, TouchableOpacity, Alert
+	ScrollView,
+	TouchableOpacity,
+	Alert
 } from 'react-native';
 import { useMeetupDetails } from '@/hooks/useMeetupDetails';
 import { useRouter } from 'expo-router';
@@ -15,10 +17,10 @@ import { useThemeColors } from '@/hooks/useThemeColors';
 import { useAuth } from '@/context/AuthContext';
 import HeaderWithTitle from '@/components/headerWithTitle';
 import Loader from '@/components/Loader';
-import {LoginNeededContainer} from "@/components/LoginNeededContainer";
-import axios from "axios";
-import {MEETINGS_API_URL} from "@/constant/apiURL";
-import {giveConfig} from "@/utils/giveConfig";
+import { LoginNeededContainer } from '@/components/LoginNeededContainer';
+import axios from 'axios';
+import { MEETINGS_API_URL } from '@/constant/apiURL';
+import { giveConfig } from '@/utils/giveConfig';
 
 const MeetupDetails = () => {
 	const { token } = useAuth();
@@ -53,7 +55,7 @@ const MeetupDetails = () => {
 	if (loading) {
 		return (
 			<BackgroundView>
-				<Loader topOffset="0%"/>
+				<Loader topOffset="0%" />
 			</BackgroundView>
 		);
 	}
@@ -77,25 +79,24 @@ const MeetupDetails = () => {
 	};
 
 	const handleDeleteMeetup = () => {
-		Alert.alert(
-			'Confirm Deletion',
-			'Are you sure you want to delete this meetup?',
-			[
-				{ text: 'Cancel', style: 'cancel' },
-				{
-					text: 'Delete',
-					style: 'destructive',
-					onPress: async () => {
-						try {
-							await axios.delete(`${MEETINGS_API_URL}${meetup.id}/`, giveConfig(token));
-							router.replace('/myMeetupsOwned');
-						} catch (err) {
-							console.error('Failed to delete meetup:', err);
-						}
+		Alert.alert('Confirm Deletion', 'Are you sure you want to delete this meetup?', [
+			{ text: 'Cancel', style: 'cancel' },
+			{
+				text: 'Delete',
+				style: 'destructive',
+				onPress: async () => {
+					try {
+						await axios.delete(
+							`${MEETINGS_API_URL}${meetup.id}/`,
+							giveConfig(token)
+						);
+						router.replace('/myMeetupsOwned');
+					} catch (err) {
+						console.error('Failed to delete meetup:', err);
 					}
 				}
-			]
-		);
+			}
+		]);
 	};
 
 	return (
@@ -116,10 +117,11 @@ const MeetupDetails = () => {
 					<Text style={[styles.author, { color: descriptionColor }]}>Author: </Text>
 
 					<TouchableOpacity onPress={handleOpenAuthorProfile}>
-						<Text style={[styles.author, { color: primaryLink }]}>{meetup?.author || 'Unknown'}</Text>
+						<Text style={[styles.author, { color: primaryLink }]}>
+							{meetup?.author || 'Unknown'}
+						</Text>
 					</TouchableOpacity>
 				</View>
-
 
 				<Text
 					style={[styles.link, { color: descriptionColor }]}
@@ -146,13 +148,14 @@ const MeetupDetails = () => {
 					{meetup?.description || 'No description available.'}
 				</Text>
 
-
 				{userID === meetup?.author_id ? (
 					<View>
-						<TouchableOpacity style={[styles.button, styles.editButton]}
-										  onPress={() => {
-											  router.push(`/edit-meetup/${meetup?.id}`);
-										  }}>
+						<TouchableOpacity
+							style={[styles.button, styles.editButton]}
+							onPress={() => {
+								router.push(`/edit-meetup/${meetup?.id}`);
+							}}
+						>
 							<Text style={styles.buttonText}>Edit Meetup</Text>
 						</TouchableOpacity>
 
@@ -162,17 +165,20 @@ const MeetupDetails = () => {
 						>
 							<Text style={styles.buttonText}>Delete Meetup</Text>
 						</TouchableOpacity>
-
 					</View>
-					) : isFavorite !== null ? (
+				) : isFavorite !== null ? (
 					isFavorite ? (
-						<TouchableOpacity style={[styles.button, styles.unsubscribeButton]}
-										  onPress={handleUnsubscribe}>
+						<TouchableOpacity
+							style={[styles.button, styles.unsubscribeButton]}
+							onPress={handleUnsubscribe}
+						>
 							<Text style={styles.buttonText}>Unsubscribe</Text>
 						</TouchableOpacity>
 					) : (
-						<TouchableOpacity style={[styles.button, styles.subscribeButton]}
-										  onPress={handleSignForMeeting}>
+						<TouchableOpacity
+							style={[styles.button, styles.subscribeButton]}
+							onPress={handleSignForMeeting}
+						>
 							<Text style={styles.buttonText}>Subscribe</Text>
 						</TouchableOpacity>
 					)
@@ -181,7 +187,6 @@ const MeetupDetails = () => {
 						Loading subscription status...
 					</Text>
 				)}
-
 			</ScrollView>
 		</BackgroundView>
 	);

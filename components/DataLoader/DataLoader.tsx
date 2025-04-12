@@ -1,5 +1,5 @@
 // DataLoader.tsx
-import React, {useEffect} from 'react';
+import React from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { useMeetups } from '@/components/DataLoader/useMeetups';
 import FilterBar from '@/components/DataLoader/FilterBar';
@@ -15,7 +15,6 @@ const DataLoader: React.FC<DataLoaderProps> = ({
 	fetchFunction,
 	flatListHeight = '75%'
 }) => {
-
 	const {
 		meetups,
 		loading,
@@ -30,10 +29,6 @@ const DataLoader: React.FC<DataLoaderProps> = ({
 		console.log('Error in DataLoader:');
 		console.log(error);
 	}
-
-	useEffect(() => {
-		console.log(meetups)
-	}, [meetups]);
 
 	return (
 		<View>

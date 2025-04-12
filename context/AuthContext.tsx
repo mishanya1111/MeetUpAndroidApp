@@ -23,7 +23,7 @@ interface AuthContextType {
 		username: string;
 		user_id: number;
 	}) => void;
-	saveName: (name :string) => void;
+	saveName: (name: string) => void;
 	loading: boolean;
 }
 

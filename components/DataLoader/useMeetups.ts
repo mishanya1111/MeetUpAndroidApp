@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { MEETUP } from '@/constant/router';
+import { useMeetupUpdate } from '@/context/MeetupUpdateContext';
 
 interface Meetup {
 	id: number;
@@ -28,12 +29,14 @@ export const useMeetups = (
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
 
+	const { shouldRefetch } = useMeetupUpdate();
+
 	const fetchData = async () => {
 		setLoading(true);
 		setError(null);
 
 		const params: Record<string, string> = {
-			page_size: '0',
+			page_size: '50',
 			...(searchParams.query && { search: searchParams.query }),
 			...(searchParams.startDate && { datetime_beg__gt: searchParams.startDate }),
 			...(searchParams.endDate && { datetime_beg__lt: searchParams.endDate })
@@ -62,7 +65,7 @@ export const useMeetups = (
 
 	useEffect(() => {
 		fetchData();
-	}, []);
+	}, [shouldRefetch]);
 
 	const setSearchQuery = (query: string) => {
 		setSearchParams(prev => ({ ...prev, query }));

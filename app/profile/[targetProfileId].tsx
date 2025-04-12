@@ -5,16 +5,16 @@ import HeaderWithTitle from '@/components/headerWithTitle';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
 
 export default function TargetProfile() {
-    const { targetProfileId } = useLocalSearchParams();
+	const { targetProfileId } = useLocalSearchParams();
 
-    return (
-        <>
-            <Stack.Screen options={{ headerShown: false }} />
+	return (
+		<>
+			<Stack.Screen options={{ headerShown: false }} />
 
-            <BackgroundView>
-                <HeaderWithTitle title="User Profile" />
-                <Profile targetProfileId={Number(targetProfileId)} />
-            </BackgroundView>
-        </>
-    );
+			<BackgroundView>
+				<HeaderWithTitle title="User Profile" />
+				<Profile targetProfileId={Number(targetProfileId)} />
+			</BackgroundView>
+		</>
+	);
 }

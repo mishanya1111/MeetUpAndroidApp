@@ -13,7 +13,7 @@ export function ThemeToggleButton() {
 		Animated.timing(translateX, {
 			toValue: isDarkMode ? 30 : 0,
 			duration: 300,
-			useNativeDriver: false,
+			useNativeDriver: false
 		}).start();
 	}, [isDarkMode]);
 
@@ -26,16 +26,12 @@ export function ThemeToggleButton() {
 			onPress={toggleTheme}
 		>
 			{/* Луна 🌜 слева в темной теме */}
-			<View style={styles.icon}>
-				{isDarkMode ? <Text>🌜</Text> : null}
-			</View>
+			<View style={styles.icon}>{isDarkMode ? <Text>🌜</Text> : null}</View>
 			{/* Двигающийся белый круг */}
 			<Animated.View style={[styles.circle, { transform: [{ translateX }] }]} />
 
 			{/* Солнце 🌞 справа в светлой теме */}
-			<View style={styles.icon2}>
-				{!isDarkMode ? <Text>🌞</Text> : null}
-			</View>
+			<View style={styles.icon2}>{!isDarkMode ? <Text>🌞</Text> : null}</View>
 		</TouchableOpacity>
 	);
 }
@@ -50,7 +46,7 @@ const styles = StyleSheet.create({
 		borderRadius: 15,
 		padding: 2,
 		flexDirection: 'row',
-		alignItems: 'center',
+		alignItems: 'center'
 	},
 	circle: {
 		width: 24,
@@ -58,17 +54,17 @@ const styles = StyleSheet.create({
 		borderRadius: 12,
 		backgroundColor: '#FFFFFF',
 		position: 'absolute',
-		left: 5,
+		left: 5
 	},
 	icon: {
 		width: 24,
 		alignItems: 'center',
-		justifyContent: 'center',
+		justifyContent: 'center'
 	},
 	icon2: {
 		width: 24,
 		alignItems: 'center',
 		justifyContent: 'center',
 		marginLeft: 10
-	},
+	}
 });

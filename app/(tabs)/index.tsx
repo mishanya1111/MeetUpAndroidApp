@@ -11,7 +11,7 @@ export default function HomeScreen() {
 		const queryParams = new URLSearchParams(params).toString();
 		console.log(queryParams);
 		const response = await axios.get(`${MEETINGS_API_URL}?${queryParams}`);
-		console.log(response.data.results.length);
+		//console.log(response.data.results.length);
 		return response.data;
 	};
 

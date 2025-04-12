@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Alert } from "react-native";
 import axios from 'axios';
 import { REGISTER_API_URL } from '@/constant/apiURL';
 import { useRouter } from 'expo-router';
@@ -43,15 +42,17 @@ export const useSignUp = () => {
 
 			const data = error.response?.data;
 
-			if (data?.email?.[0] === "user with this email already exists.") {
-				setErrorMessage("User with this email is already registered. Please log in instead.");
+			if (data?.email?.[0] === 'user with this email already exists.') {
+				setErrorMessage(
+					'User with this email is already registered. Please log in instead.'
+				);
 			} else if (data?.username?.[0]) {
 				setErrorMessage(data.username[0]);
 			} else if (typeof data === 'object') {
 				// fallback на json ошибок
 				setErrorMessage(JSON.stringify(data, null, 2));
 			} else {
-				setErrorMessage("Registration failed. Please try again.");
+				setErrorMessage('Registration failed. Please try again.');
 			}
 		} finally {
 			setIsPending(false);

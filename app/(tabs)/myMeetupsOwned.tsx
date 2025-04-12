@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
 import axios from 'axios';
 import DataLoader from '@/components/DataLoader/DataLoader';
@@ -9,7 +9,7 @@ import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/styleComponent/ThemedText';
 import { CREATE_MEETUPS } from '@/constant/router';
 import { giveConfig } from '@/utils/giveConfig';
-import {LoginNeededContainer} from "@/components/LoginNeededContainer";
+import { LoginNeededContainer } from '@/components/LoginNeededContainer';
 
 export default function MyMeetupsOwned() {
 	const { token, userID } = useAuth(); // Достаём токен и userID из контекста
@@ -40,7 +40,7 @@ export default function MyMeetupsOwned() {
 			console.log(response)
 		}*/
 		//response.data.results = response.data; // как влад починит - убрать!!!!!!!
-		console.log(response.data.results.map(it => it.title));
+		//console.log(response.data.results.map(it => it.title));
 		return response.data;
 	};
 
@@ -49,11 +49,14 @@ export default function MyMeetupsOwned() {
 			<View style={styles.container}>
 				<ThemedText style={styles.title}>Meetups you own:</ThemedText>
 
-				<TouchableOpacity style={styles.createButton} onPress={() => router.push(CREATE_MEETUPS)}>
+				<TouchableOpacity
+					style={styles.createButton}
+					onPress={() => router.push(CREATE_MEETUPS)}
+				>
 					<Text style={styles.createButtonText}>Create Meetup</Text>
 				</TouchableOpacity>
 
-				<DataLoader fetchFunction={fetchWithToken} flatListHeight = "67%" />
+				<DataLoader fetchFunction={fetchWithToken} flatListHeight="67%" />
 			</View>
 		</BackgroundView>
 	);

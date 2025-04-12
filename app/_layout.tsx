@@ -6,6 +6,7 @@ import { useFonts } from 'expo-font';
 
 import { ThemeProvider } from '@/context/ThemeContext';
 import { AuthProvider } from '@/context/AuthContext';
+import { MeetupUpdateProvider } from '@/context/MeetupUpdateContext';
 
 // Отключаем авто-скрытие SplashScreen, пока ресурсы загружаются
 SplashScreen.preventAutoHideAsync();
@@ -26,26 +27,28 @@ export default function RootLayout() {
 	}
 
 	return (
-		<ThemeProvider>
-			<AuthProvider>
-				<Stack>
-					<Stack.Screen
-						name="(tabs)"
-						options={{
-							headerShown: false
-						}}
-					/>
-					<Stack.Screen
-						name="(auth)"
-						options={{
-							headerShown: false
-						}}
-					/>
+		<MeetupUpdateProvider>
+			<ThemeProvider>
+				<AuthProvider>
+					<Stack>
+						<Stack.Screen
+							name="(tabs)"
+							options={{
+								headerShown: false
+							}}
+						/>
+						<Stack.Screen
+							name="(auth)"
+							options={{
+								headerShown: false
+							}}
+						/>
 
-					<Stack.Screen name="+not-found" />
-				</Stack>
-				<StatusBar style="auto" />
-			</AuthProvider>
-		</ThemeProvider>
+						<Stack.Screen name="+not-found" />
+					</Stack>
+					<StatusBar style="auto" />
+				</AuthProvider>
+			</ThemeProvider>
+		</MeetupUpdateProvider>
 	);
 }
