@@ -22,21 +22,17 @@ export default function TabLayout() {
 				tabBarActiveTintColor: activeTabs,
 				headerShown: false,
 				tabBarButton: HapticTab,
-				//tabBarBackground: TabBarBackground,
-				tabBarStyle: Platform.select({
-					ios: {
-						// Use a transparent background on iOS to show the blur effect
-						position: 'absolute'
-					},
-					default: { backgroundColor: headerFooter }
-				}),
-				//tabBarStyle: {  },//..оно работает, не трогай, если сможешь оставить цвет и убрать ошибку то норм
+				tabBarStyle: {
+					backgroundColor: headerFooter,
+					borderTopWidth: 0,
+					height: Platform.OS === 'ios' ? 70 : 52,
+					paddingBottom: Platform.OS === 'ios' ? 25 : 10
+				},
 				tabBarLabelStyle: {
 					color: text,
-					fontSize: 9.9
+					fontSize: 9.5
 				}
-				//headerStyle: { backgroundColor: 'black' },
-			}}
+		}}
 		>
 			<Tabs.Screen
 				name="index"
