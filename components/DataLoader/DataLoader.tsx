@@ -51,6 +51,10 @@ const DataLoader: React.FC<DataLoaderProps> = ({ fetchFunction }) => {
 						data={meetups}
 						keyExtractor={item => item.id.toString()}
 						renderItem={({ item }) => <MeetupCard {...item} />}
+						initialNumToRender={5}
+						maxToRenderPerBatch={10}
+						windowSize={5}
+						removeClippedSubviews={true}
 					/>
 				)}
 			</View>

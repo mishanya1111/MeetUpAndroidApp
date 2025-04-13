@@ -26,8 +26,6 @@ const FilterBar: React.FC<FilterBarProps> = ({
 	applyFilters
 }) => {
 	const [showDateFilters, setShowDateFilters] = useState(false);
-	// const [showStartPicker, setShowStartPicker] = useState(false);
-	// const [showEndPicker, setShowEndPicker] = useState(false);
 	const { headerFooter, text, buttonBorder, buttonBg } = useThemeColors();
 
 	const styles = StyleSheet.create({
@@ -42,9 +40,6 @@ const FilterBar: React.FC<FilterBarProps> = ({
 			alignItems: 'center',
 			gap: 20
 		},
-		// iconButton: {
-		// 	padding: 8
-		// },
 		dateFilters: {
 			flexDirection: 'row',
 			justifyContent: 'space-around'
