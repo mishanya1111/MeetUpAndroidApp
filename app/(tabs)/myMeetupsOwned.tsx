@@ -56,7 +56,7 @@ export default function MyMeetupsOwned() {
 					<Text style={styles.createButtonText}>Create Meetup</Text>
 				</TouchableOpacity>
 
-				<DataLoader fetchFunction={fetchWithToken} flatListHeight="68%" />
+				<DataLoader fetchFunction={fetchWithToken} />
 			</View>
 		</BackgroundView>
 	);
@@ -64,7 +64,8 @@ export default function MyMeetupsOwned() {
 
 const styles = StyleSheet.create({
 	container: {
-		padding: 16
+		flex: 1,
+		padding: 8
 	},
 	createButton: {
 		backgroundColor: '#3a6ff7',

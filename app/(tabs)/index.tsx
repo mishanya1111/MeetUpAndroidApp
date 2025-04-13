@@ -19,7 +19,8 @@ export default function HomeScreen() {
 		<BackgroundView>
 			<View style={styles.container}>
 				<ThemedText style={styles.title}>Meetups:</ThemedText>
-				<DataLoader fetchFunction={fetchWithToken} flatListHeight="68%" />
+
+				<DataLoader fetchFunction={fetchWithToken} />
 			</View>
 		</BackgroundView>
 	);
@@ -27,7 +28,8 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
 	container: {
-		padding: 16
+		flex: 1,
+		padding: 8
 	},
 	loader: {
 		flex: 1,

@@ -47,7 +47,8 @@ export default function MyMeetupsSubscriber() {
 		<BackgroundView>
 			<View style={styles.container}>
 				<ThemedText style={styles.title}>Meetups you have subscribed to:</ThemedText>
-				<DataLoader fetchFunction={fetchWithToken} flatListHeight="74%" />
+
+				<DataLoader fetchFunction={fetchWithToken} />
 			</View>
 		</BackgroundView>
 	);
@@ -55,7 +56,8 @@ export default function MyMeetupsSubscriber() {
 
 const styles = StyleSheet.create({
 	container: {
-		padding: 16
+		flex: 1,
+		padding: 8
 	},
 	authContainer: {
 		flex: 1,

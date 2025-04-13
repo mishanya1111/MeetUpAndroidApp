@@ -34,7 +34,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
 		filterBar: {
 			padding: 20,
 			gap: 20,
-			marginBottom: 20
+			marginBottom: 20,
+			borderRadius: 8
 		},
 		searchContainer: {
 			flexDirection: 'row',
