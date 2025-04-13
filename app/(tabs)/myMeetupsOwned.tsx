@@ -56,7 +56,7 @@ export default function MyMeetupsOwned() {
 					<Text style={styles.createButtonText}>Create Meetup</Text>
 				</TouchableOpacity>
 
-				<DataLoader fetchFunction={fetchWithToken} flatListHeight="67%" />
+				<DataLoader fetchFunction={fetchWithToken} flatListHeight="68%" />
 			</View>
 		</BackgroundView>
 	);

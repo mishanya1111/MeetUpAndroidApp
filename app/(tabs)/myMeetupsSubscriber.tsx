@@ -47,7 +47,7 @@ export default function MyMeetupsSubscriber() {
 		<BackgroundView>
 			<View style={styles.container}>
 				<ThemedText style={styles.title}>Meetups you have subscribed to:</ThemedText>
-				<DataLoader fetchFunction={fetchWithToken} />
+				<DataLoader fetchFunction={fetchWithToken} flatListHeight="74%" />
 			</View>
 		</BackgroundView>
 	);

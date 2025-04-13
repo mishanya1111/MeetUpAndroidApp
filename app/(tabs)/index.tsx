@@ -19,7 +19,7 @@ export default function HomeScreen() {
 		<BackgroundView>
 			<View style={styles.container}>
 				<ThemedText style={styles.title}>Meetups:</ThemedText>
-				<DataLoader fetchFunction={fetchWithToken} flatListHeight="74%" />
+				<DataLoader fetchFunction={fetchWithToken} flatListHeight="68%" />
 			</View>
 		</BackgroundView>
 	);

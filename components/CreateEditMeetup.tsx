@@ -43,8 +43,6 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 	});
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const [showDatePicker, setShowDatePicker] = useState(false);
-	const [showTimePicker, setShowTimePicker] = useState(false);
 	const { triggerRefetch } = useMeetupUpdate();
 
 	// Загрузка митапа при редактировании
