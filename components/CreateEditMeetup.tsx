@@ -12,6 +12,7 @@ import {
 	Pressable
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
 import HeaderWithTitle from '@/components/headerWithTitle';
 import { useThemeColors } from '@/hooks/useThemeColors';
@@ -147,19 +148,34 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 		}
 	};
 
-	const handleDateChange = (_event: any, selectedDate?: Date) => {
-		setShowDatePicker(false);
-		if (selectedDate) {
-			handleChange('datetime_beg', selectedDate.toISOString());
-			if (Platform.OS === 'android') {
+	const handleDateChange = (event: any, selectedDate?: Date) => {
+		if (Platform.OS === 'android') {
+			if (event.type === 'set' && selectedDate) {
+				handleChange('datetime_beg', selectedDate.toISOString());
+				setShowDatePicker(false);
 				setShowTimePicker(true);
+			} else {
+				setShowDatePicker(false); // Закрыть, если отменил
 			}
+		} else if (selectedDate) {
+			handleChange('datetime_beg', selectedDate.toISOString());
 		}
 	};
 
-	const handleTimeChange = (_event: any, selectedTime?: Date) => {
-		setShowTimePicker(false);
-		if (selectedTime) {
+	const handleTimeChange = (event: any, selectedTime?: Date) => {
+		if (Platform.OS === 'android') {
+			if (event.type === 'set' && selectedTime) {
+				const currentDate = formData.datetime_beg
+					? new Date(formData.datetime_beg)
+					: new Date();
+
+				currentDate.setHours(selectedTime.getHours());
+				currentDate.setMinutes(selectedTime.getMinutes());
+
+				handleChange('datetime_beg', currentDate.toISOString());
+			}
+			setShowTimePicker(false); // Закрыть вне зависимости от выбора
+		} else if (selectedTime) {
 			const currentDate = new Date(formData.datetime_beg);
 			currentDate.setHours(selectedTime.getHours());
 			currentDate.setMinutes(selectedTime.getMinutes());
@@ -243,39 +259,40 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 				{/* Android — единая кнопка выбора */}
 				{Platform.OS === 'android' && (
 					<>
-						<Pressable onPress={() => setShowDatePicker(true)} style={styles.input}>
+						<Pressable
+							onPress={() =>
+								DateTimePickerAndroid.open({
+									value: formData.datetime_beg ? new Date(formData.datetime_beg) : new Date(),
+									mode: 'date',
+									display: 'default',
+									onChange: (_event, selectedDate) => {
+										if (selectedDate) {
+											handleChange('datetime_beg', selectedDate.toISOString());
+											DateTimePickerAndroid.open({
+												value: selectedDate,
+												mode: 'time',
+												display: 'default',
+												onChange: (_event, selectedTime) => {
+													if (selectedTime) {
+														const combined = new Date(selectedDate);
+														combined.setHours(selectedTime.getHours());
+														combined.setMinutes(selectedTime.getMinutes());
+														handleChange('datetime_beg', combined.toISOString());
+													}
+												}
+											});
+										}
+									}
+								})
+							}
+							style={styles.input}
+						>
 							<Text style={{ color: '#000' }}>
 								{formData.datetime_beg
 									? new Date(formData.datetime_beg).toLocaleString()
 									: 'Pick date and time'}
 							</Text>
 						</Pressable>
-
-						{showDatePicker && (
-							<DateTimePicker
-								value={
-									formData.datetime_beg
-										? new Date(formData.datetime_beg)
-										: new Date()
-								}
-								mode="date"
-								display="default"
-								onChange={handleDateChange}
-							/>
-						)}
-
-						{showTimePicker && (
-							<DateTimePicker
-								value={
-									formData.datetime_beg
-										? new Date(formData.datetime_beg)
-										: new Date()
-								}
-								mode="time"
-								display="default"
-								onChange={handleTimeChange}
-							/>
-						)}
 					</>
 				)}
 
