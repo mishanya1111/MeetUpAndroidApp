@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
 		flex: 1
 	},
 	listContainer: {
-		flex: 1,
+		flex: 1
 	},
 	errorText: {
 		textAlign: 'center',

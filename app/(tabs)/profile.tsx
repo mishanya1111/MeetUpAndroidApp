@@ -124,7 +124,7 @@ export default function Profile({ targetProfileId }: ProfileProps) {
 	let content: React.JSX.Element;
 
 	if (loading) {
-		content = <Loader topOffset = '100%'/>;
+		content = <Loader topOffset="100%" />;
 	} else if (error) {
 		content = <ThemedText>{error}</ThemedText>;
 	} else if (!token) {

@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, Text, Platform } from 'react-native';
+import {
+	View,
+	TextInput,
+	TouchableOpacity,
+	StyleSheet,
+	Text,
+	Platform
+} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { Feather } from '@expo/vector-icons';
@@ -77,7 +84,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
 			mode: 'date',
 			display: 'default',
 			onChange: (_event, selectedDate) => {
-				if (selectedDate) {
+				if (_event.type === 'dismissed') {
+					// Пользователь нажал "Отмена"
+					setValue(null);
+				} else if (selectedDate) {
 					const isoDate = selectedDate.toISOString().split('T')[0];
 					setValue(isoDate);
 				}
@@ -112,10 +122,11 @@ const FilterBar: React.FC<FilterBarProps> = ({
 				<View style={styles.dateFilters}>
 					{/* START DATE */}
 					<TouchableOpacity
-						onPress={() =>
-							Platform.OS === 'android'
-								? openAndroidPicker(startDate, setStartDate)
-								: setStartDate(null) // оставить null, если нужно вручную вызвать iOS
+						onPress={
+							() =>
+								Platform.OS === 'android'
+									? openAndroidPicker(startDate, setStartDate)
+									: setStartDate(null) // оставить null, если нужно вручную вызвать iOS
 						}
 					>
 						<TextInput

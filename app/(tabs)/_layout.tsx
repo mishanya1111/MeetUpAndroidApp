@@ -32,7 +32,7 @@ export default function TabLayout() {
 					color: text,
 					fontSize: 9.5
 				}
-		}}
+			}}
 		>
 			<Tabs.Screen
 				name="index"

@@ -260,7 +260,9 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 						<Pressable
 							onPress={() =>
 								DateTimePickerAndroid.open({
-									value: formData.datetime_beg ? new Date(formData.datetime_beg) : new Date(),
+									value: formData.datetime_beg
+										? new Date(formData.datetime_beg)
+										: new Date(),
 									mode: 'date',
 									display: 'default',
 									onChange: (_event, selectedDate) => {

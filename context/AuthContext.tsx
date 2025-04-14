@@ -3,7 +3,8 @@ import React, {
 	useContext,
 	useState,
 	useEffect,
-	useCallback, useMemo
+	useCallback,
+	useMemo
 } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -47,15 +48,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 	const [userID, setUserID] = useState<number | null>(null);
 	const [loading, setLoading] = useState(true);
 
-	const saveToken = useCallback(async (newToken) => {
-		if (
-			token?.access === newToken.access &&
-			token?.refresh === newToken.refresh
-		) return;
+	const saveToken = useCallback(
+		async newToken => {
+			if (token?.access === newToken.access && token?.refresh === newToken.refresh)
+				return;
 
-		setToken(newToken);
-		await AsyncStorage.setItem('authToken', JSON.stringify(newToken));
-	}, [token]);
+			setToken(newToken);
+			await AsyncStorage.setItem('authToken', JSON.stringify(newToken));
+		},
+		[token]
+	);
 
 	const saveName = useCallback(async (newName: string) => {
 		setName(newName);
@@ -163,27 +165,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 		loadAuthData();
 	}, []);
 
-	const contextValue = useMemo(() => ({
-		token,
-		userID,
-		name,
-		saveToken,
-		removeToken,
-		saveDate,
-		loading,
-		refreshAccessToken,
-		saveName
-	}), [
-		token,
-		userID,
-		name,
-		loading,
-		saveToken,
-		removeToken,
-		saveDate,
-		refreshAccessToken,
-		saveName
-	]);
+	const contextValue = useMemo(
+		() => ({
+			token,
+			userID,
+			name,
+			saveToken,
+			removeToken,
+			saveDate,
+			loading,
+			refreshAccessToken,
+			saveName
+		}),
+		[
+			token,
+			userID,
+			name,
+			loading,
+			saveToken,
+			removeToken,
+			saveDate,
+			refreshAccessToken,
+			saveName
+		]
+	);
 
 	return (
 		<AuthContext.Provider value={contextValue}>
