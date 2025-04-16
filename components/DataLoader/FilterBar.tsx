@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, Text } from 'react-native';
+import {
+	View,
+	TextInput,
+	TouchableOpacity,
+	StyleSheet,
+	Text,
+	Platform
+} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { Feather } from '@expo/vector-icons';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { BUTTON_TEXT } from '@/constant/Colors';
@@ -25,45 +33,19 @@ const FilterBar: React.FC<FilterBarProps> = ({
 	applyFilters
 }) => {
 	const [showDateFilters, setShowDateFilters] = useState(false);
-	const [showStartPicker, setShowStartPicker] = useState(false);
-	const [showEndPicker, setShowEndPicker] = useState(false);
-
 	const { headerFooter, text, buttonBorder, buttonBg } = useThemeColors();
-
-	const renderDatePicker = (pickerType: 'start' | 'end') => {
-		const isStartPicker = pickerType === 'start';
-		return (
-			<DateTimePicker
-				value={new Date()}
-				mode="date"
-				display="default"
-				onChange={(event, selectedDate) => {
-					if (event.type === 'dismissed') {
-						isStartPicker ? setStartDate(null) : setEndDate(null);
-					} else if (selectedDate) {
-						const localDate = new Date(selectedDate.getTime() + 3 * 60 * 60 * 1000);
-						const formattedDate = localDate.toISOString().split('T')[0];
-						isStartPicker ? setStartDate(formattedDate) : setEndDate(formattedDate);
-					}
-					isStartPicker ? setShowStartPicker(false) : setShowEndPicker(false);
-				}}
-			/>
-		);
-	};
 
 	const styles = StyleSheet.create({
 		filterBar: {
 			padding: 20,
 			gap: 20,
-			marginBottom: 20
+			marginBottom: 20,
+			borderRadius: 8
 		},
 		searchContainer: {
 			flexDirection: 'row',
 			alignItems: 'center',
 			gap: 20
-		},
-		iconButton: {
-			padding: 8
 		},
 		dateFilters: {
 			flexDirection: 'row',
@@ -75,7 +57,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
 			borderColor: buttonBorder,
 			borderRadius: 50,
 			textAlign: 'center',
-			color: text
+			color: text,
+			width: 140
 		},
 		buttonApply: {
 			backgroundColor: buttonBg,
@@ -90,6 +73,27 @@ const FilterBar: React.FC<FilterBarProps> = ({
 			textAlign: 'center'
 		}
 	});
+
+	// Android — открыть выбор даты
+	const openAndroidPicker = (
+		currentValue: string | null,
+		setValue: (val: string | null) => void
+	) => {
+		DateTimePickerAndroid.open({
+			value: currentValue ? new Date(currentValue) : new Date(),
+			mode: 'date',
+			display: 'default',
+			onChange: (_event, selectedDate) => {
+				if (_event.type === 'dismissed') {
+					// Пользователь нажал "Отмена"
+					setValue(null);
+				} else if (selectedDate) {
+					const isoDate = selectedDate.toISOString().split('T')[0];
+					setValue(isoDate);
+				}
+			}
+		});
+	};
 
 	return (
 		<View style={[styles.filterBar, { backgroundColor: headerFooter }]}>
@@ -107,16 +111,24 @@ const FilterBar: React.FC<FilterBarProps> = ({
 					placeholderTextColor={text}
 					value={searchQuery}
 					onChangeText={setSearchQuery}
-					onSubmitEditing={() => applyFilters()}
+					onSubmitEditing={applyFilters}
 				/>
 				<TouchableOpacity onPress={() => setShowDateFilters(!showDateFilters)}>
 					<Feather name="calendar" size={20} color={text} />
 				</TouchableOpacity>
 			</View>
 
-			{showDateFilters && (
+			{showDateFilters && Platform.OS === 'android' && (
 				<View style={styles.dateFilters}>
-					<TouchableOpacity onPress={() => setShowStartPicker(true)}>
+					{/* START DATE */}
+					<TouchableOpacity
+						onPress={
+							() =>
+								Platform.OS === 'android'
+									? openAndroidPicker(startDate, setStartDate)
+									: setStartDate(null) // оставить null, если нужно вручную вызвать iOS
+						}
+					>
 						<TextInput
 							style={styles.dateInput}
 							placeholder="Start Date"
@@ -126,7 +138,14 @@ const FilterBar: React.FC<FilterBarProps> = ({
 						/>
 					</TouchableOpacity>
 
-					<TouchableOpacity onPress={() => setShowEndPicker(true)}>
+					{/* END DATE */}
+					<TouchableOpacity
+						onPress={() =>
+							Platform.OS === 'android'
+								? openAndroidPicker(endDate, setEndDate)
+								: setEndDate(null)
+						}
+					>
 						<TextInput
 							style={styles.dateInput}
 							placeholder="End Date"
@@ -138,12 +157,30 @@ const FilterBar: React.FC<FilterBarProps> = ({
 				</View>
 			)}
 
+			{Platform.OS === 'ios' && showDateFilters && (
+				<View style={styles.dateFilters}>
+					<DateTimePicker
+						value={startDate ? new Date(startDate) : new Date()}
+						mode="date"
+						display="compact"
+						onChange={(_, date) =>
+							date && setStartDate(date.toISOString().split('T')[0])
+						}
+					/>
+					<DateTimePicker
+						value={endDate ? new Date(endDate) : new Date()}
+						mode="date"
+						display="compact"
+						onChange={(_, date) =>
+							date && setEndDate(date.toISOString().split('T')[0])
+						}
+					/>
+				</View>
+			)}
+
 			<TouchableOpacity onPress={applyFilters} style={styles.buttonApply}>
 				<Text style={styles.buttonApplyText}>Apply Filters</Text>
 			</TouchableOpacity>
-
-			{showStartPicker && renderDatePicker('start')}
-			{showEndPicker && renderDatePicker('end')}
 		</View>
 	);
 };

@@ -4,24 +4,26 @@ import {
 	View,
 	Text,
 	Image,
-	Button,
 	Linking,
 	StyleSheet,
-	ScrollView
+	ScrollView,
+	TouchableOpacity,
+	Alert
 } from 'react-native';
 import { useMeetupDetails } from '@/hooks/useMeetupDetails';
 import { useRouter } from 'expo-router';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { useAuth } from '@/context/AuthContext';
-import { ThemedText } from '@/components/styleComponent/ThemedText';
-import { SIGN_IN } from '@/constant/router';
 import HeaderWithTitle from '@/components/headerWithTitle';
 import Loader from '@/components/Loader';
-import {LoginNeededContainer} from "@/components/LoginNeededContainer"; // Для иконки стрелочки назад
+import { LoginNeededContainer } from '@/components/LoginNeededContainer';
+import axios from 'axios';
+import { MEETINGS_API_URL } from '@/constant/apiURL';
+import { giveConfig } from '@/utils/giveConfig';
 
 const MeetupDetails = () => {
-	const { token } = useAuth(); // Достаём токен и userID из контекста
+	const { token } = useAuth();
 	const router = useRouter();
 	const {
 		handlePath,
@@ -29,7 +31,6 @@ const MeetupDetails = () => {
 		primaryLink,
 		description: descriptionColor
 	} = useThemeColors();
-	// Если нет токена — показываем просьбу войти в систему
 	const {
 		meetup,
 		loading,
@@ -40,6 +41,7 @@ const MeetupDetails = () => {
 		handleSignForMeeting,
 		handleUnsubscribe
 	} = useMeetupDetails();
+
 	if (!token) {
 		return (
 			<BackgroundView>
@@ -53,7 +55,7 @@ const MeetupDetails = () => {
 	if (loading) {
 		return (
 			<BackgroundView>
-				<Loader />
+				<Loader topOffset="0%" />
 			</BackgroundView>
 		);
 	}
@@ -68,6 +70,35 @@ const MeetupDetails = () => {
 		);
 	}
 
+	const handleOpenAuthorProfile = () => {
+		if (meetup?.author_id === userID) {
+			router.push('/(tabs)/profile');
+		} else {
+			router.push(`/profile/${meetup?.author_id}`);
+		}
+	};
+
+	const handleDeleteMeetup = () => {
+		Alert.alert('Confirm Deletion', 'Are you sure you want to delete this meetup?', [
+			{ text: 'Cancel', style: 'cancel' },
+			{
+				text: 'Delete',
+				style: 'destructive',
+				onPress: async () => {
+					try {
+						await axios.delete(
+							`${MEETINGS_API_URL}${meetup.id}/`,
+							giveConfig(token)
+						);
+						router.replace('/myMeetupsOwned');
+					} catch (err) {
+						console.error('Failed to delete meetup:', err);
+					}
+				}
+			}
+		]);
+	};
+
 	return (
 		<BackgroundView>
 			<HeaderWithTitle title={meetup?.title || 'Meetup Details'} />
@@ -77,12 +108,21 @@ const MeetupDetails = () => {
 					source={meetup?.image ? { uri: meetup.image } : handlePath}
 					style={styles.image}
 				/>
+
 				<Text style={[styles.title, { color: text }]}>
 					{meetup?.title || 'Untitled Meetup'}
 				</Text>
-				<Text style={[styles.author, { color: descriptionColor }]}>
-					Author: {meetup?.author || 'Unknown'}
-				</Text>
+
+				<View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 8 }}>
+					<Text style={[styles.author, { color: descriptionColor }]}>Author: </Text>
+
+					<TouchableOpacity onPress={handleOpenAuthorProfile}>
+						<Text style={[styles.author, { color: primaryLink }]}>
+							{meetup?.author || 'Unknown'}
+						</Text>
+					</TouchableOpacity>
+				</View>
+
 				<Text
 					style={[styles.link, { color: descriptionColor }]}
 					onPress={() => meetup?.link && Linking.openURL(meetup.link)}
@@ -95,9 +135,11 @@ const MeetupDetails = () => {
 						{meetup?.link || 'No link provided'}{' '}
 					</Text>
 				</Text>
+
 				<Text style={[styles.date, { color: descriptionColor }]}>
 					Date: {formattedDate}
 				</Text>
+
 				<Text style={[styles.signed, { color: descriptionColor }]}>
 					Already signed: {meetup?.attendees_count || 0}
 				</Text>
@@ -107,18 +149,38 @@ const MeetupDetails = () => {
 				</Text>
 
 				{userID === meetup?.author_id ? (
-					<Button
-						title="Edit Meetup"
-						onPress={() => {
-							//router.push(`/editMeetup/${meetup?.id})`
-							console.log('router => Edit page');
-						}}
-					/>
+					<View>
+						<TouchableOpacity
+							style={[styles.button, styles.editButton]}
+							onPress={() => {
+								router.push(`/edit-meetup/${meetup?.id}`);
+							}}
+						>
+							<Text style={styles.buttonText}>Edit Meetup</Text>
+						</TouchableOpacity>
+
+						<TouchableOpacity
+							style={[styles.button, styles.unsubscribeButton]}
+							onPress={handleDeleteMeetup}
+						>
+							<Text style={styles.buttonText}>Delete Meetup</Text>
+						</TouchableOpacity>
+					</View>
 				) : isFavorite !== null ? (
 					isFavorite ? (
-						<Button title="Unsubscribe" onPress={handleUnsubscribe} />
+						<TouchableOpacity
+							style={[styles.button, styles.unsubscribeButton]}
+							onPress={handleUnsubscribe}
+						>
+							<Text style={styles.buttonText}>Unsubscribe</Text>
+						</TouchableOpacity>
 					) : (
-						<Button title="Subscribe" onPress={handleSignForMeeting} />
+						<TouchableOpacity
+							style={[styles.button, styles.subscribeButton]}
+							onPress={handleSignForMeeting}
+						>
+							<Text style={styles.buttonText}>Subscribe</Text>
+						</TouchableOpacity>
 					)
 				) : (
 					<Text style={{ color: descriptionColor }}>
@@ -195,6 +257,27 @@ const styles = StyleSheet.create({
 	errorText: {
 		textAlign: 'center',
 		fontSize: 16
+	},
+	button: {
+		paddingVertical: 10,
+		paddingHorizontal: 20,
+		borderRadius: 8,
+		alignItems: 'center',
+		marginVertical: 10
+	},
+	editButton: {
+		backgroundColor: '#1c8139'
+	},
+	subscribeButton: {
+		backgroundColor: '#007BFF'
+	},
+	unsubscribeButton: {
+		backgroundColor: '#FF4500'
+	},
+	buttonText: {
+		color: '#fff',
+		fontSize: 16,
+		fontWeight: 'bold'
 	}
 });
 

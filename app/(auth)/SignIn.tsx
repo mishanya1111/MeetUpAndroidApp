@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-	View,
-	Text,
-	TextInput,
-	Button,
-	TouchableOpacity,
-	StyleSheet
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSignIn } from '@/hooks/useSignIn';
 import { SIGN_UP } from '@/constant/router';
 import { useRouter } from 'expo-router';
@@ -51,19 +44,34 @@ export default function SignIn() {
 					secureTextEntry={!showPassword}
 				/>
 
-				<TouchableOpacity onPress={togglePasswordVisibility} style={styles.showPassword}>
-					<Text style={{ color: text }}>{!showPassword ? '🔓 Show' : '🔒 Hide'}</Text>
+				<TouchableOpacity
+					onPress={togglePasswordVisibility}
+					style={styles.showPassword}
+				>
+					<Text style={{ color: text }}>
+						{!showPassword ? '🔓 Show' : '🔒 Hide'}
+					</Text>
 				</TouchableOpacity>
 
-				{errorMessage ? <Text style={[styles.error, { color: 'red' }]}>{errorMessage}</Text> : null}
+				{errorMessage ? (
+					<Text style={[styles.error, { color: 'red' }]}>{errorMessage}</Text>
+				) : null}
 
 				{/* кнопка входа */}
-				<TouchableOpacity onPress={handleSubmit} style={[styles.loginButton, { backgroundColor: buttonBg }]} disabled={isPending}>
-					<Text style={styles.loginButtonText}>{isPending ? 'Pending...' : 'Sign In'}</Text>
+				<TouchableOpacity
+					onPress={handleSubmit}
+					style={[styles.loginButton, { backgroundColor: buttonBg }]}
+					disabled={isPending}
+				>
+					<Text style={styles.loginButtonText}>
+						{isPending ? 'Pending...' : 'Sign In'}
+					</Text>
 				</TouchableOpacity>
 
 				<TouchableOpacity onPress={() => router.push(SIGN_UP)}>
-					<Text style={[styles.link, { color: primaryLink }]}>Don’t have an account? <Text style={styles.underline}>Sign up!</Text></Text>
+					<Text style={[styles.link, { color: primaryLink }]}>
+						Don’t have an account? <Text style={styles.underline}>Sign up!</Text>
+					</Text>
 				</TouchableOpacity>
 			</View>
 		</BackgroundView>
@@ -75,11 +83,11 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
-		padding: 20,
+		padding: 20
 	},
 	title: {
 		fontSize: 24,
-		marginBottom: 20,
+		marginBottom: 20
 	},
 	input: {
 		borderWidth: 1,
@@ -87,17 +95,17 @@ const styles = StyleSheet.create({
 		marginBottom: 12,
 		width: '100%',
 		maxWidth: 350,
-		borderRadius: 8,
+		borderRadius: 8
 	},
 	showPassword: {
 		marginBottom: 15,
-		alignSelf: "baseline"
+		alignSelf: 'baseline'
 	},
 	error: {
-		marginBottom: 10,
+		marginBottom: 10
 	},
 	loginButton: {
-		backgroundColor: "#3a6ff7",
+		backgroundColor: '#3a6ff7',
 		paddingVertical: 10,
 		paddingHorizontal: 80,
 		width: '80%',

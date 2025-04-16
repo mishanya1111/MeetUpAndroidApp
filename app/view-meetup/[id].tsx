@@ -1,4 +1,4 @@
-// app/meetup/[id].tsx
+// app/view-meetup/[id].tsx
 import MeetupDetails from '@/components/MeetupDetails';
 import { Stack } from 'expo-router';
 import React from 'react';

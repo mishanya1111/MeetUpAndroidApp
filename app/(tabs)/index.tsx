@@ -11,7 +11,7 @@ export default function HomeScreen() {
 		const queryParams = new URLSearchParams(params).toString();
 		console.log(queryParams);
 		const response = await axios.get(`${MEETINGS_API_URL}?${queryParams}`);
-		/*console.log(response)*/
+		//console.log(response.data.results.length);
 		return response.data;
 	};
 
@@ -19,7 +19,8 @@ export default function HomeScreen() {
 		<BackgroundView>
 			<View style={styles.container}>
 				<ThemedText style={styles.title}>Meetups:</ThemedText>
-				<DataLoader fetchFunction={fetchWithToken} flatListHeight="80%" />
+
+				<DataLoader fetchFunction={fetchWithToken} />
 			</View>
 		</BackgroundView>
 	);
@@ -27,7 +28,8 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
 	container: {
-		padding: 16
+		flex: 1,
+		padding: 8
 	},
 	loader: {
 		flex: 1,

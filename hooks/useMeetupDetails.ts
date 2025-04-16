@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { MEETINGS_API_URL } from '@/constant/apiURL';
 import { SIGN_IN } from '@/constant/router';
 import { giveConfig } from '@/utils/giveConfig';
+import { useMeetupUpdate } from '@/context/MeetupUpdateContext';
 
 export const useMeetupDetails = () => {
 	const { id } = useLocalSearchParams();
@@ -16,43 +17,44 @@ export const useMeetupDetails = () => {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [isFavorite, setIsFavorite] = useState<boolean | null>(null);
+	const { shouldRefetch } = useMeetupUpdate();
+	const fetchMeetupData = async () => {
+		if (!id) return;
+		setLoading(true);
+		console.log('start fetching in detail');
+
+		try {
+			const response = await axios.get(`${MEETINGS_API_URL}${id}/`);
+			console.log(response.data);
+			setMeetup(response.data);
+		} catch (err: any) {
+			setError(err.response?.data || err.message);
+			console.log('error in detail');
+		} finally {
+			console.log('finish fetching');
+			setLoading(false);
+		}
+	};
+
+	const checkIsFavorite = async () => {
+		if (!token) return;
+
+		try {
+			const response = await axios.get(
+				`${MEETINGS_API_URL}${id}/is_subscribed/`,
+				giveConfig(token)
+			);
+			setIsFavorite(response.data?.message || false);
+		} catch (err: any) {
+			console.error('Error checking subscription:', err);
+			setError(err.response?.data || err.message);
+		}
+	};
 
 	useEffect(() => {
-		const fetchMeetupData = async () => {
-			if (!id) return;
-			setLoading(true);
-			console.log('start fetching in detail');
-
-			try {
-				const response = await axios.get(`${MEETINGS_API_URL}${id}/`);
-				setMeetup(response.data);
-			} catch (err: any) {
-				setError(err.response?.data || err.message);
-				console.log('error in detail');
-			} finally {
-				console.log('finish fetching');
-				setLoading(false);
-			}
-		};
-
-		const checkIsFavorite = async () => {
-			if (!token) return;
-
-			try {
-				const response = await axios.get(
-					`${MEETINGS_API_URL}${id}/is_subscribed/`,
-					giveConfig(token)
-				);
-				setIsFavorite(response.data?.message || false);
-			} catch (err: any) {
-				console.error('Error checking subscription:', err);
-				setError(err.response?.data || err.message);
-			}
-		};
-
 		fetchMeetupData();
 		if (token) checkIsFavorite();
-	}, []);
+	}, [shouldRefetch]);
 
 	const handleSignForMeeting = useCallback(async () => {
 		if (!token) {

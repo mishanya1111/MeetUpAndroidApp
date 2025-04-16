@@ -6,7 +6,7 @@ interface LoaderProps {
 	topOffset?: string;
 }
 
-export default function Loader({ topOffset = '70%' }: LoaderProps) {
+export default function Loader({ topOffset = '0%' }: LoaderProps) {
 	const { handlePath } = useThemeColors();
 
 	// Анимация вращения
