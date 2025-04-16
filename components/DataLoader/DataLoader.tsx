@@ -8,13 +8,9 @@ import Loader from '@/components/Loader';
 
 interface DataLoaderProps {
 	fetchFunction: (params: Record<string, string>) => Promise<any>;
-	flatListHeight?: string;
 }
 
-const DataLoader: React.FC<DataLoaderProps> = ({
-	fetchFunction,
-	flatListHeight = '75%'
-}) => {
+const DataLoader: React.FC<DataLoaderProps> = ({ fetchFunction }) => {
 	const {
 		meetups,
 		loading,
@@ -25,43 +21,53 @@ const DataLoader: React.FC<DataLoaderProps> = ({
 		applyFilters,
 		searchParams
 	} = useMeetups(fetchFunction);
+
 	if (error) {
 		console.log('Error in DataLoader:');
 		console.log(error);
 	}
+
 	return (
-		<View>
-			<FilterBar
-				searchQuery={searchParams.query}
-				startDate={searchParams.startDate}
-				endDate={searchParams.endDate}
-				setSearchQuery={setSearchQuery}
-				setStartDate={setStartDate}
-				setEndDate={setEndDate}
-				applyFilters={applyFilters}
-			/>
-			{loading ? (
-				/*<ActivityIndicator size="large" style={styles.loader} />*/
-				<Loader />
-			) : error ? (
-				<Text style={styles.errorText}>Error: {error}</Text>
-			) : (
-				<FlatList
-					style={{ height: flatListHeight }}
-					data={meetups}
-					keyExtractor={item => item.id.toString()}
-					renderItem={({ item }) => <MeetupCard {...item} />}
+		<View style={{ flex: 1 }}>
+			<View>
+				<FilterBar
+					searchQuery={searchParams.query}
+					startDate={searchParams.startDate}
+					endDate={searchParams.endDate}
+					setSearchQuery={setSearchQuery}
+					setStartDate={setStartDate}
+					setEndDate={setEndDate}
+					applyFilters={applyFilters}
 				/>
-			)}
+			</View>
+
+			<View style={{ flex: 1 }}>
+				{loading ? (
+					<Loader />
+				) : error ? (
+					<Text style={styles.errorText}>Error: {error}</Text>
+				) : (
+					<FlatList
+						data={meetups}
+						keyExtractor={item => item.id.toString()}
+						renderItem={({ item }) => <MeetupCard {...item} />}
+						initialNumToRender={5}
+						maxToRenderPerBatch={10}
+						windowSize={5}
+						removeClippedSubviews={true}
+					/>
+				)}
+			</View>
 		</View>
 	);
 };
 
 const styles = StyleSheet.create({
-	loader: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center'
+	container: {
+		flex: 1
+	},
+	listContainer: {
+		flex: 1
 	},
 	errorText: {
 		textAlign: 'center',

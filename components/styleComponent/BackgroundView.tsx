@@ -12,23 +12,18 @@ export function BackgroundView({ children }: BackgroundViewProps) {
 	// Стиль с учетом StatusBar
 	const containerStyle = [
 		styles.container,
-		{ backgroundColor: background, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }
+		{
+			backgroundColor: background,
+			paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0
+		}
 	];
 
 	// SafeAreaView для iOS
 	if (Platform.OS === 'ios') {
-		return (
-			<SafeAreaView style={containerStyle}>
-				{children}
-			</SafeAreaView>
-		);
+		return <SafeAreaView style={containerStyle}>{children}</SafeAreaView>;
 	}
 
-	return (
-		<View style={containerStyle}>
-			{children}
-		</View>
-	);
+	return <View style={containerStyle}>{children}</View>;
 }
 
 const styles = StyleSheet.create({

@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { BASE, MEETUP } from '@/constant/router';
 import { MEETINGS_API_URL } from '@/constant/apiURL';
-import {giveConfig, giveConfigWithContentType} from '@/utils/giveConfig';
+import { giveConfig, giveConfigWithContentType } from '@/utils/giveConfig';
 import { useAuth } from '@/context/AuthContext';
 
 interface FormData {

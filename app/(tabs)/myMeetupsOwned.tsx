@@ -1,23 +1,19 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
 import axios from 'axios';
 import DataLoader from '@/components/DataLoader/DataLoader';
 import { MEETINGS_OWNED, USER_API_URL } from '@/constant/apiURL';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'expo-router';
-import { SIGN_IN } from '@/constant/router';
 import { ThemedText } from '@/components/styleComponent/ThemedText';
-import { Button } from 'react-native';
 import { CREATE_MEETUPS } from '@/constant/router';
-import { useThemeColors } from '@/hooks/useThemeColors';
 import { giveConfig } from '@/utils/giveConfig';
-import {LoginNeededContainer} from "@/components/LoginNeededContainer";
+import { LoginNeededContainer } from '@/components/LoginNeededContainer';
 
 export default function MyMeetupsOwned() {
 	const { token, userID } = useAuth(); // Достаём токен и userID из контекста
 	const router = useRouter();
-	const { buttonBg } = useThemeColors();
 
 	// Если нет токена — показываем просьбу войти в систему
 	if (!token) {
@@ -44,6 +40,7 @@ export default function MyMeetupsOwned() {
 			console.log(response)
 		}*/
 		//response.data.results = response.data; // как влад починит - убрать!!!!!!!
+		//console.log(response.data.results.map(it => it.title));
 		return response.data;
 	};
 
@@ -52,11 +49,14 @@ export default function MyMeetupsOwned() {
 			<View style={styles.container}>
 				<ThemedText style={styles.title}>Meetups you own:</ThemedText>
 
-				<TouchableOpacity style={styles.createButton} onPress={() => router.push(CREATE_MEETUPS)}>
+				<TouchableOpacity
+					style={styles.createButton}
+					onPress={() => router.push(CREATE_MEETUPS)}
+				>
 					<Text style={styles.createButtonText}>Create Meetup</Text>
 				</TouchableOpacity>
 
-				<DataLoader fetchFunction={fetchWithToken} flatListHeight = "67%" />
+				<DataLoader fetchFunction={fetchWithToken} />
 			</View>
 		</BackgroundView>
 	);
@@ -64,7 +64,8 @@ export default function MyMeetupsOwned() {
 
 const styles = StyleSheet.create({
 	container: {
-		padding: 16
+		flex: 1,
+		padding: 8
 	},
 	createButton: {
 		backgroundColor: '#3a6ff7',
