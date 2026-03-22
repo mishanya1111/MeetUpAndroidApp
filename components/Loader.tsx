@@ -3,7 +3,7 @@ import React from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
 
 interface LoaderProps {
-	topOffset?: string;
+	topOffset?: number | `${number}%`;
 }
 
 export default function Loader({ topOffset = '0%' }: LoaderProps) {

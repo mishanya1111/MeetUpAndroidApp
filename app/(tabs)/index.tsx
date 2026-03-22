@@ -7,9 +7,8 @@ import { ThemedText } from '@/components/styleComponent/ThemedText';
 import { MEETINGS_API_URL } from '@/constant/apiURL';
 
 export default function HomeScreen() {
-	const fetchWithToken = async (params: Record<string, string>) => {
-		const queryParams = new URLSearchParams(params).toString();
-		console.log(queryParams);
+	const fetchWithToken = async (params: URLSearchParams) => {
+		const queryParams = params.toString();
 		const response = await axios.get(`${MEETINGS_API_URL}?${queryParams}`);
 		//console.log(response.data.results.length);
 		return response.data;

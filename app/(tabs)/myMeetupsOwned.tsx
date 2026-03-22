@@ -25,8 +25,8 @@ export default function MyMeetupsOwned() {
 	}
 
 	// Функция для загрузки данных встреч
-	const fetchWithToken = async (params: Record<string, string>) => {
-		const queryParams = new URLSearchParams(params).toString();
+	const fetchWithToken = async (params: URLSearchParams) => {
+		const queryParams = params.toString();
 		//console.log('userID' + userID);
 		console.log(
 			'url in owned:' + `${USER_API_URL}${userID}/${MEETINGS_OWNED}?` + queryParams
@@ -51,7 +51,7 @@ export default function MyMeetupsOwned() {
 
 				<TouchableOpacity
 					style={styles.createButton}
-					onPress={() => router.push(CREATE_MEETUPS)}
+					onPress={() => router.push(CREATE_MEETUPS as any)}
 				>
 					<Text style={styles.createButtonText}>Create Meetup</Text>
 				</TouchableOpacity>

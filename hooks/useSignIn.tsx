@@ -28,7 +28,7 @@ export const useSignIn = () => {
 			console.log(response);
 			saveDate(response.data);
 			console.log('successful');
-			router.push(PROFILE);
+			router.push(PROFILE as any);
 		} catch (error) {
 			setErrorMessage('Invalid username or password. Please try again.');
 		} finally {

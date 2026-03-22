@@ -61,7 +61,7 @@ export default function SignUp() {
 				</TouchableOpacity>
 
 				{/* Ссылка "Sign In!" теперь интерактивная */}
-				<TouchableOpacity onPress={() => router.push(SIGN_IN)}>
+				<TouchableOpacity onPress={() => router.push(SIGN_IN as any)}>
 					<Text style={[styles.link, { color: primaryLink }]}>
 						Already have an account? <Text style={styles.underline}>Sign in!</Text>
 					</Text>

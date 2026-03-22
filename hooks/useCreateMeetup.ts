@@ -7,7 +7,7 @@ import { MEETINGS_API_URL } from '@/constant/apiURL';
 import { giveConfig, giveConfigWithContentType } from '@/utils/giveConfig';
 import { useAuth } from '@/context/AuthContext';
 
-interface FormData {
+interface MeetupFormState {
 	title: string;
 	description: string;
 	datetime_beg: string;
@@ -16,7 +16,7 @@ interface FormData {
 }
 
 export const useCreateMeetup = () => {
-	const [formData, setFormData] = useState<FormData>({
+	const [formData, setFormData] = useState<MeetupFormState>({
 		title: '',
 		description: '',
 		datetime_beg: '',
@@ -26,10 +26,10 @@ export const useCreateMeetup = () => {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const router = useRouter();
-	const { token, userID } = useAuth();
+	const { token } = useAuth();
 
 	const handleChange = (
-		field: keyof FormData,
+		field: keyof MeetupFormState,
 		value: string | { uri: string; type: string; name: string } | null
 	) => {
 		setFormData(prev => ({ ...prev, [field]: value }));
@@ -73,16 +73,18 @@ export const useCreateMeetup = () => {
 		try {
 			const formDataToSend = new FormData();
 			formDataToSend.append('title', formData.title);
-			formDataToSend.append('author_id', userID);
 			formDataToSend.append('datetime_beg', formData.datetime_beg);
 			formDataToSend.append('link', formData.link);
 			formDataToSend.append('description', formData.description);
 			if (formData.image) {
-				formDataToSend.append('image', {
-					uri: formData.image.uri,
-					type: formData.image.type,
-					name: formData.image.name
-				});
+				formDataToSend.append(
+					'image',
+					{
+						uri: formData.image.uri,
+						type: formData.image.type,
+						name: formData.image.name
+					} as any
+				);
 			}
 			/*{
           uri: formData.image.uri,
@@ -106,15 +108,18 @@ export const useCreateMeetup = () => {
 			const meetupId = result.data.id;
 
 			console.log(meetupId);
-			router.push(BASE); //сделано для того чтобы при нажатии на назад кидало не на создание митапов
-			router.push(`${MEETUP}/${meetupId}`);
-		} catch (err) {
+			router.push(BASE as any);
+			router.push(`${MEETUP}/${meetupId}` as any);
+		} catch (err: unknown) {
 			if (axios.isAxiosError(err)) {
 				console.log('Axios error details:', err.response);
+				setError(err.message || 'Something went wrong');
+			} else if (err instanceof Error) {
+				console.log('Unexpected error:', err);
+				setError(err.message || 'Something went wrong');
+			} else {
+				setError('Something went wrong');
 			}
-			console.log('Unexpected error:', err);
-
-			setError(err.message || 'Something went wrong');
 		} finally {
 			setLoading(false);
 		}

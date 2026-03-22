@@ -9,8 +9,7 @@ export const giveConfig = token => {
 export const giveConfigWithContentType = token => {
 	return {
 		headers: {
-			Authorization: `Bearer ${token.access}`,
-			'Content-Type': 'multipart/form-data'
+			Authorization: `Bearer ${token.access}`
 		}
 	};
 };

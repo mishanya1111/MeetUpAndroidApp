@@ -12,10 +12,10 @@ interface LoginNeededContainerProps {
 export function LoginNeededContainer({ message }: LoginNeededContainerProps) {
 	return (
 		<View style={styles.loginNeededContainer}>
-			<ThemedText>{message}</ThemedText>
+			<ThemedText style={styles.messageText}>{message}</ThemedText>
 
 			<TouchableOpacity
-				onPress={() => router.push(SIGN_IN)}
+				onPress={() => router.push(SIGN_IN as any)}
 				style={styles.loginButton}
 			>
 				<Text style={styles.loginButtonText}>Login</Text>
@@ -27,9 +27,14 @@ export function LoginNeededContainer({ message }: LoginNeededContainerProps) {
 const styles = StyleSheet.create({
 	loginNeededContainer: {
 		alignItems: 'center',
+		alignSelf: 'center',
 		width: '100%',
 		maxWidth: 400,
 		marginTop: 250
+	},
+	messageText: {
+		width: '100%',
+		textAlign: 'center'
 	},
 	loginButton: {
 		backgroundColor: '#3a6ff7',

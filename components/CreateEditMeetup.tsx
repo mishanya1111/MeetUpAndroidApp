@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
 	View,
 	Text,
@@ -9,7 +9,14 @@ import {
 	Platform,
 	Linking,
 	ScrollView,
-	Pressable
+	Pressable,
+	Animated,
+	Easing,
+	LayoutChangeEvent,
+	StyleProp,
+	TextStyle,
+	ViewStyle,
+	Alert
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
@@ -17,13 +24,98 @@ import { BackgroundView } from '@/components/styleComponent/BackgroundView';
 import HeaderWithTitle from '@/components/headerWithTitle';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import axios from 'axios';
-import { MEETINGS_API_URL } from '@/constant/apiURL';
+import { GPT_URL, MEETINGS_API_URL, TAGS_API_URL } from '@/constant/apiURL';
 import { useAuth } from '@/context/AuthContext';
 import * as ImagePicker from 'expo-image-picker';
 import { giveConfig, giveConfigWithContentType } from '@/utils/giveConfig';
-import { Alert } from 'react-native';
 import { router } from 'expo-router';
 import { useMeetupUpdate } from '@/context/MeetupUpdateContext';
+import { LinearGradient } from 'expo-linear-gradient';
+
+const AI_GRADIENT_COLORS = ['#fd7f84', '#efcc7d', '#cd52f5', '#892de8'] as const;
+
+type GradientLoadingButtonProps = {
+	label: string;
+	loading: boolean;
+	disabled?: boolean;
+	onPress: () => void | Promise<void>;
+	style?: StyleProp<ViewStyle>;
+	textStyle?: StyleProp<TextStyle>;
+};
+
+function GradientLoadingButton({
+	label,
+	loading,
+	disabled,
+	onPress,
+	style,
+	textStyle
+}: GradientLoadingButtonProps) {
+	const [width, setWidth] = useState(0);
+	const translateX = useRef(new Animated.Value(0)).current;
+	const animationRef = useRef<Animated.CompositeAnimation | null>(null);
+
+	useEffect(() => {
+		if (!loading || width <= 0) {
+			animationRef.current?.stop();
+			animationRef.current = null;
+			return;
+		}
+
+		translateX.setValue(0);
+		const distance = width * 2;
+		const anim = Animated.loop(
+			Animated.timing(translateX, {
+				toValue: -distance,
+				duration: 2500,
+				easing: Easing.linear,
+				useNativeDriver: true
+			})
+		);
+		animationRef.current = anim;
+		anim.start();
+
+		return () => {
+			anim.stop();
+			animationRef.current = null;
+		};
+	}, [loading, translateX, width]);
+
+	const handleLayout = (e: LayoutChangeEvent) => {
+		const nextWidth = e.nativeEvent.layout.width;
+		if (nextWidth && nextWidth !== width) setWidth(nextWidth);
+	};
+
+	return (
+		<TouchableOpacity
+			onPress={onPress}
+			style={[style, { overflow: 'hidden' }]}
+			disabled={disabled}
+			onLayout={handleLayout}
+		>
+			{loading && width > 0 ? (
+				<View pointerEvents="none" style={StyleSheet.absoluteFillObject}>
+					<Animated.View
+						style={{
+							width: width * 3,
+							height: '100%',
+							transform: [{ translateX }]
+						}}
+					>
+						<LinearGradient
+							colors={AI_GRADIENT_COLORS}
+							start={{ x: 0, y: 0 }}
+							end={{ x: 1, y: 0 }}
+							style={{ flex: 1 }}
+						/>
+					</Animated.View>
+				</View>
+			) : null}
+
+			<Text style={[textStyle, loading ? { color: '#fff' } : null]}>{label}</Text>
+		</TouchableOpacity>
+	);
+}
 
 type Props = {
 	meetupId?: number;
@@ -38,12 +130,36 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 		title: '',
 		description: '',
 		datetime_beg: '',
+		duration: '',
 		link: '',
-		image: null as null | { uri: string }
+		image: null as null | { uri: string; type?: string; name?: string },
+		tag_ids: [] as number[]
 	});
+	const [allTags, setAllTags] = useState<
+		{ id: number; name: string; slug: string; color: string }[]
+	>([]);
+	const [tagsLoading, setTagsLoading] = useState(false);
+	const [aiResponse, setAiResponse] = useState('');
+	const [isAiResponseVisible, setIsAiResponseVisible] = useState(false);
+	const [isPendingAI, setIsPendingAI] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const { triggerRefetch } = useMeetupUpdate();
+
+	useEffect(() => {
+		const fetchTags = async () => {
+			setTagsLoading(true);
+			try {
+				const response = await axios.get(TAGS_API_URL);
+				setAllTags(response.data || []);
+			} catch {
+				setAllTags([]);
+			} finally {
+				setTagsLoading(false);
+			}
+		};
+		fetchTags();
+	}, []);
 
 	// Загрузка митапа при редактировании
 	useEffect(() => {
@@ -54,13 +170,18 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 						`${MEETINGS_API_URL}${meetupId}/`,
 						giveConfig(token)
 					);
-					const { title, description, datetime_beg, link, image } = res.data;
+					const { title, description, datetime_beg, link, image, duration, tags } =
+						res.data;
 					setFormData({
 						title,
 						description,
 						datetime_beg,
+						duration: String(duration ?? ''),
 						link,
-						image: image ? { uri: image } : null
+						image: image ? { uri: image } : null,
+						tag_ids: Array.isArray(tags)
+							? tags.map((t: any) => t?.id).filter(Boolean)
+							: []
 					});
 				} catch (err) {
 					setError('Failed to load meetup.');
@@ -71,6 +192,11 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 	}, [meetupId]);
 
 	const handleChange = (key: string, value: string) => {
+		if (key === 'duration') {
+			const sanitized = value.replace(/[^0-9]/g, '');
+			setFormData(prev => ({ ...prev, duration: sanitized }));
+			return;
+		}
 		setFormData(prev => ({ ...prev, [key]: value }));
 	};
 
@@ -98,35 +224,85 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 		}
 	};
 
+	const handleImproveWithAI = async () => {
+		if (!formData.description.trim()) {
+			Alert.alert('Info', 'Please provide a description first.');
+			return;
+		}
+
+		setIsPendingAI(true);
+		try {
+			const gptPrompt = `
+Тебе дано краткое описание мероприятия: "${formData.description}". 
+Твоя задача: расписать это описание больше объемом, сделать его структурированным и по пунктам. 
+Затем дай мне ответ СТРОГО В СЛЕДУЮЩЕМ ФОРМАТЕ: 
+"текст расширенного описания митапа, который ты придумаешь"
+Ничего больше добавлять не нужно. НЕ ПИШИ вводных слов, комментариев, заключений, либо других текстов вне указанного формата. ТОЛЬКО содержимое улучшенного описания. 
+ВАЖНО: ответ должен быть в пределах 480 символов. Если текст превышает это количество, сократи его.`;
+
+			const gptResponse = await axios.post(
+				`${GPT_URL}/chatgpt`,
+				{ message: gptPrompt },
+				{ headers: { 'Content-Type': 'application/json' } }
+			);
+			const gptMessage: string =
+				gptResponse.data?.choices?.[0]?.message?.content || '';
+			if (!gptMessage) {
+				throw new Error('No content received from GPT.');
+			}
+			setAiResponse(gptMessage);
+			setIsAiResponseVisible(true);
+		} catch {
+			Alert.alert('Error', 'Failed to communicate with AI.');
+		} finally {
+			setIsPendingAI(false);
+		}
+	};
+
+	const handleAcceptAiSuggestion = () => {
+		if (!aiResponse) return;
+		setFormData(prev => ({ ...prev, description: aiResponse }));
+		setAiResponse('');
+		setIsAiResponseVisible(false);
+	};
+
+	const dismissAiResponse = () => {
+		setAiResponse('');
+		setIsAiResponseVisible(false);
+	};
+
 	const handleSubmit = async () => {
 		setLoading(true);
 		setError(null);
 
 		try {
-			let payload: any = formData;
-			let config = giveConfig(token);
-
-			const useFormData = !!formData.image;
-
-			if (useFormData) {
-				const form = new FormData();
-				Object.entries(formData).forEach(([key, value]) => {
-					if (!value) return;
-
-					if (key === 'image' && value) {
-						form.append('image', {
-							uri: value.uri,
-							type: value.type || 'image/jpeg',
-							name: value.name || `meetup_${Date.now()}.jpg`
-						});
-					} else {
-						form.append(key, value);
-					}
-				});
-
-				payload = form;
-				config = giveConfigWithContentType(token);
+			const durationNum = Number.parseInt(String(formData.duration || ''), 10);
+			if (!Number.isFinite(durationNum) || durationNum <= 0) {
+				Alert.alert('Error', 'Please enter a valid duration in hours.');
+				return;
 			}
+			const durationForApi = durationNum;
+
+			const payload = new FormData();
+			payload.append('title', formData.title);
+			payload.append('description', formData.description);
+			payload.append('datetime_beg', formData.datetime_beg);
+			payload.append('link', formData.link);
+			payload.append('duration', String(durationForApi));
+			formData.tag_ids.forEach(id => payload.append('tag_ids', String(id)));
+
+			if (formData.image) {
+				payload.append(
+					'image',
+					{
+						uri: formData.image.uri,
+						type: formData.image.type || 'image/jpeg',
+						name: formData.image.name || `meetup_${Date.now()}.jpg`
+					} as any
+				);
+			}
+
+			const config = giveConfigWithContentType(token);
 
 			if (isEditing) {
 				await axios.patch(`${MEETINGS_API_URL}${meetupId}/`, payload, config);
@@ -139,46 +315,38 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 			router.back();
 		} catch (err: any) {
 			console.error('ERROR RESPONSE:', err.response?.data || err.message);
+			const serverMessage =
+				typeof err.response?.data === 'string'
+					? err.response.data
+					: JSON.stringify(err.response?.data || {}, null, 2);
 			setError('Failed to submit meetup.');
-			Alert.alert('Error', 'Failed to submit meetup.');
+			Alert.alert('Error', serverMessage || 'Failed to submit meetup.');
 		} finally {
 			setLoading(false);
 		}
 	};
 
-	const handleDateChange = (event: any, selectedDate?: Date) => {
-		if (Platform.OS === 'android') {
-			if (event.type === 'set' && selectedDate) {
-				handleChange('datetime_beg', selectedDate.toISOString());
-				setShowDatePicker(false);
-				setShowTimePicker(true);
-			} else {
-				setShowDatePicker(false); // Закрыть, если отменил
-			}
-		} else if (selectedDate) {
-			handleChange('datetime_beg', selectedDate.toISOString());
-		}
+	const handleDateChangeIOS = (_event: any, selectedDate?: Date) => {
+		if (!selectedDate) return;
+		const currentDate = formData.datetime_beg
+			? new Date(formData.datetime_beg)
+			: new Date();
+		currentDate.setFullYear(
+			selectedDate.getFullYear(),
+			selectedDate.getMonth(),
+			selectedDate.getDate()
+		);
+		handleChange('datetime_beg', currentDate.toISOString());
 	};
 
-	const handleTimeChange = (event: any, selectedTime?: Date) => {
-		if (Platform.OS === 'android') {
-			if (event.type === 'set' && selectedTime) {
-				const currentDate = formData.datetime_beg
-					? new Date(formData.datetime_beg)
-					: new Date();
-
-				currentDate.setHours(selectedTime.getHours());
-				currentDate.setMinutes(selectedTime.getMinutes());
-
-				handleChange('datetime_beg', currentDate.toISOString());
-			}
-			setShowTimePicker(false); // Закрыть вне зависимости от выбора
-		} else if (selectedTime) {
-			const currentDate = new Date(formData.datetime_beg);
-			currentDate.setHours(selectedTime.getHours());
-			currentDate.setMinutes(selectedTime.getMinutes());
-			handleChange('datetime_beg', currentDate.toISOString());
-		}
+	const handleTimeChangeIOS = (_event: any, selectedTime?: Date) => {
+		if (!selectedTime) return;
+		const currentDate = formData.datetime_beg
+			? new Date(formData.datetime_beg)
+			: new Date();
+		currentDate.setHours(selectedTime.getHours());
+		currentDate.setMinutes(selectedTime.getMinutes());
+		handleChange('datetime_beg', currentDate.toISOString());
 	};
 
 	return (
@@ -218,6 +386,51 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 					multiline
 				/>
 
+				<GradientLoadingButton
+					style={[styles.button, styles.blueButton, { width: '100%', maxWidth: 400 }]}
+					onPress={handleImproveWithAI}
+					disabled={isPendingAI}
+					loading={isPendingAI}
+					label={isPendingAI ? 'AI...' : 'Improve with AI'}
+					textStyle={styles.buttonText}
+				/>
+
+				{isAiResponseVisible ? (
+					<View style={{ width: '100%', maxWidth: 400 }}>
+						<Text style={[styles.label, { color: text }]}>AI suggestion:</Text>
+						<TextInput
+							style={[styles.input, styles.descriptionInput]}
+							value={aiResponse}
+							onChangeText={setAiResponse}
+							multiline
+						/>
+						<View style={{ flexDirection: 'row', gap: 10 }}>
+							<TouchableOpacity
+								style={[
+									styles.button,
+									styles.aiActionButton,
+									styles.greenButton,
+									{ flex: 1, marginTop: 0 }
+								]}
+								onPress={handleAcceptAiSuggestion}
+							>
+								<Text style={styles.buttonText}>Use</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[
+									styles.button,
+									styles.aiActionButton,
+									styles.redButton,
+									{ flex: 1, marginTop: 0 }
+								]}
+								onPress={dismissAiResponse}
+							>
+								<Text style={styles.buttonText}>Dismiss</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				) : null}
+
 				<Text style={[styles.label, { color: text }]}>Start Date and Time:</Text>
 				{Platform.OS === 'ios' && (
 					<View
@@ -236,7 +449,7 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 								}
 								mode="date"
 								display="compact"
-								onChange={handleDateChange}
+								onChange={handleDateChangeIOS}
 							/>
 						</View>
 						<View style={{ width: 100 }}>
@@ -248,7 +461,7 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 								}
 								mode="time"
 								display="compact"
-								onChange={handleTimeChange}
+								onChange={handleTimeChangeIOS}
 							/>
 						</View>
 					</View>
@@ -295,6 +508,54 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 						</Pressable>
 					</>
 				)}
+
+				<Text style={[styles.label, { color: text }]}>Duration (hours):</Text>
+				<TextInput
+					style={styles.input}
+					value={formData.duration}
+					onChangeText={val => handleChange('duration', val)}
+					placeholder="Duration"
+					placeholderTextColor="#aaa"
+					keyboardType="number-pad"
+				/>
+
+				<Text style={[styles.label, { color: text }]}>
+					Tags:{tagsLoading ? ' loading...' : ''}
+				</Text>
+				<ScrollView horizontal showsHorizontalScrollIndicator={false}>
+					<View style={styles.tagsRow}>
+						{allTags.map(tag => {
+							const selected = formData.tag_ids.includes(tag.id);
+							return (
+								<TouchableOpacity
+									key={tag.id}
+									onPress={() => {
+										setFormData(prev => ({
+											...prev,
+											tag_ids: selected
+												? prev.tag_ids.filter(id => id !== tag.id)
+												: [...prev.tag_ids, tag.id]
+										}));
+									}}
+									style={[
+										styles.tagChip,
+										selected && styles.tagChipSelected,
+										{ borderColor: tag.color || '#ccc' }
+									]}
+								>
+									<Text
+										style={[
+											styles.tagChipText,
+											selected && styles.tagChipTextSelected
+										]}
+									>
+										{tag.name}
+									</Text>
+								</TouchableOpacity>
+							);
+						})}
+					</View>
+				</ScrollView>
 
 				<Text style={[styles.label, { color: text }]}>Link:</Text>
 				<TextInput
@@ -400,6 +661,13 @@ const styles = StyleSheet.create({
 	greenButton: {
 		backgroundColor: '#1c8139'
 	},
+	redButton: {
+		backgroundColor: '#cc2f2f'
+	},
+	aiActionButton: {
+		paddingVertical: 8,
+		marginBottom: 0
+	},
 	disabledButton: {
 		opacity: 0.6
 	},
@@ -407,6 +675,28 @@ const styles = StyleSheet.create({
 		color: '#fff',
 		fontSize: 16,
 		fontWeight: 'bold'
+	},
+	tagsRow: {
+		flexDirection: 'row',
+		gap: 10,
+		paddingVertical: 6,
+		paddingHorizontal: 2
+	},
+	tagChip: {
+		paddingVertical: 6,
+		paddingHorizontal: 10,
+		borderRadius: 999,
+		borderWidth: 1,
+		backgroundColor: '#fff'
+	},
+	tagChipSelected: {
+		backgroundColor: '#3a6ff7'
+	},
+	tagChipText: {
+		color: '#000'
+	},
+	tagChipTextSelected: {
+		color: '#fff'
 	},
 	errorText: {
 		color: 'red',

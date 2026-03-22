@@ -1,10 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-interface ApiResponse<T> {
-	data: T;
-}
-
 export interface Meetup {
 	id: number;
 	title: string;
@@ -29,7 +25,7 @@ const useFetchMeetings = <T>(url: string): FetchState<T> => {
 			setLoading(true);
 			setError(null);
 			try {
-				const response = await axios.get<ApiResponse<T>>(url);
+				const response = await axios.get<T>(url);
 				setData(response.data);
 			} catch (err) {
 				setError((err as Error).message || 'Something went wrong');

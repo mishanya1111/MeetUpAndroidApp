@@ -40,16 +40,15 @@ export default function Profile({ targetProfileId }: ProfileProps) {
 		last_name: '',
 		username: '',
 		email: '',
-		user_description: '',
-		tg_id: ''
+		user_description: ''
 	});
 
 	useEffect(() => {
 		if (userData) {
-			setEditableUserData({
-				...editableUserData,
+			setEditableUserData(prev => ({
+				...prev,
 				...userData
-			});
+			}));
 		}
 	}, [userData]);
 
@@ -89,7 +88,7 @@ export default function Profile({ targetProfileId }: ProfileProps) {
 		setShowModal(false);
 	}, [removeToken]);
 
-	const handleChange = (key, value) => {
+	const handleChange = (key: string, value: string) => {
 		setEditableUserData(prev => ({ ...prev, [key]: value }));
 	};
 
@@ -103,11 +102,16 @@ export default function Profile({ targetProfileId }: ProfileProps) {
 				photo: photoUri
 			});
 
-			if (updatedData?.photo) {
+			if (!updatedData) {
+				Alert.alert('Error', 'Failed to update your profile. Please try again.');
+				return;
+			}
+
+			if (updatedData.photo) {
 				setPhotoUri(updatedData.photo);
 			}
 
-			if (updatedData?.username && updatedData.username !== name) {
+			if (updatedData.username && updatedData.username !== name) {
 				await saveName(updatedData.username);
 			}
 
@@ -205,14 +209,6 @@ export default function Profile({ targetProfileId }: ProfileProps) {
 						placeholderTextColor="#aaa"
 					/>
 
-					<Text style={[styles.label, { color: text }]}>Telegram ID:</Text>
-					<TextInput
-						style={styles.input}
-						value={editableUserData.tg_id || userData?.tg_id || ''}
-						onChangeText={val => handleChange('tg_id', val)}
-						placeholder="Enter your Telegram ID"
-						placeholderTextColor="#aaa"
-					/>
 				</View>
 
 				<TouchableOpacity
@@ -227,7 +223,7 @@ export default function Profile({ targetProfileId }: ProfileProps) {
 
 				<TouchableOpacity
 					style={styles.createButton}
-					onPress={() => router.push(CREATE_MEETUPS)}
+					onPress={() => router.push(CREATE_MEETUPS as any)}
 				>
 					<Text style={styles.createButtonText}>Create Meetup</Text>
 				</TouchableOpacity>
@@ -275,10 +271,6 @@ export default function Profile({ targetProfileId }: ProfileProps) {
 						<ThemedText>{userData?.user_description || 'N/A'}</ThemedText>
 					</View>
 
-					<View style={styles.infoBlock}>
-						<Text style={[styles.label, { color: text }]}>Telegram ID:</Text>
-						<ThemedText>{userData?.tg_id || 'N/A'}</ThemedText>
-					</View>
 				</View>
 			</>
 		);
@@ -369,10 +361,10 @@ const styles = StyleSheet.create({
 	saveButton: {
 		backgroundColor: '#1c8139',
 		paddingVertical: 10,
-		paddingLeft: 86,
 		width: '80%',
 		borderRadius: 8,
-		marginTop: 15
+		marginTop: 15,
+		alignItems: 'center'
 	},
 	disabledButton: {
 		opacity: 0.6

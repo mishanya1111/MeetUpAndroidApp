@@ -22,8 +22,8 @@ export default function MyMeetupsSubscriber() {
 	}
 
 	// Функция для загрузки данных встреч
-	const fetchWithToken = async (params: Record<string, string>) => {
-		const queryParams = new URLSearchParams(params).toString();
+	const fetchWithToken = async (params: URLSearchParams) => {
+		const queryParams = params.toString();
 		console.log('userID' + userID);
 		console.log(
 			'url in subscriber' +

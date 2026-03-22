@@ -58,7 +58,7 @@ export const useMeetupDetails = () => {
 
 	const handleSignForMeeting = useCallback(async () => {
 		if (!token) {
-			router.push(SIGN_IN);
+			router.push(SIGN_IN as any);
 			return;
 		}
 
@@ -73,7 +73,7 @@ export const useMeetupDetails = () => {
 
 	const handleUnsubscribe = useCallback(async () => {
 		if (!token) {
-			router.push(SIGN_IN);
+			router.push(SIGN_IN as any);
 			return;
 		}
 

@@ -10,8 +10,6 @@ interface UserProfile {
 	email: string;
 	user_description: string;
 	username: string;
-	tg_id: string;
-	teams_id: string;
 	photo: string | null;
 }
 
@@ -31,7 +29,7 @@ export const useProfile = (targetProfileId?: number) => {
 				giveConfig(token)
 			);
 			return response.data;
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Ошибка загрузки данных пользователя:', error);
 			return null;
 		}
@@ -64,39 +62,63 @@ export const useProfile = (targetProfileId?: number) => {
 		userData: any
 	) => {
 		try {
-			const formData = new FormData();
+			const allowedKeys = new Set([
+				'first_name',
+				'last_name',
+				'user_description',
+				'username'
+			]);
+			const cleanedPayload: Record<string, string> = {};
 
-			// Добавляем текстовые данные в formData
+			// Добавляем только непустые текстовые поля
 			Object.keys(userData).forEach(key => {
-				if (userData[key] !== null && key !== 'photo') {
-					formData.append(key, userData[key]);
-				}
+				if (!allowedKeys.has(key)) return;
+				const value = userData[key];
+				if (value === null || value === undefined) return;
+				const strValue = String(value).trim();
+				if (!strValue) return;
+				cleanedPayload[key] = strValue;
 			});
 
-			// Если есть фото, добавляем в formData
-			if (userData.photo && typeof userData.photo === 'string') {
-				formData.append('photo', {
-					uri: userData.photo,
-					type: 'image/jpeg', // Можно изменить, если загружаются другие форматы
-					name: `profile_${Date.now()}.jpg`
+			const photoUri: string | undefined =
+				typeof userData.photo === 'string' ? userData.photo : undefined;
+			const shouldUploadPhoto =
+				!!photoUri &&
+				(photoUri.startsWith('file:') || photoUri.startsWith('content:'));
+
+			let response;
+			if (shouldUploadPhoto) {
+				const formData = new FormData();
+				Object.entries(cleanedPayload).forEach(([key, value]) => {
+					formData.append(key, value);
 				});
+				formData.append(
+					'photo',
+					{
+						uri: photoUri,
+						type: 'image/jpeg',
+						name: `profile_${Date.now()}.jpg`
+					} as any
+				);
+
+				response = await axios.patch(
+					`${USER_API_URL}${userID}/`,
+					formData,
+					giveConfigWithContentType(token)
+				);
+			} else {
+				response = await axios.patch(
+					`${USER_API_URL}${userID}/`,
+					cleanedPayload,
+					giveConfig(token)
+				);
 			}
-
-			console.log('Отправка данных:', formData);
-
-			const response = await axios.put(
-				`${USER_API_URL}${userID}/`,
-				formData,
-				giveConfigWithContentType(token)
-			);
 
 			console.log('Ответ от сервера:', response.data);
 			return response.data;
-		} catch (error) {
-			console.error(
-				'Ошибка обновления данных пользователя:',
-				error.response?.data || error.message
-			);
+		} catch (error: any) {
+			const payload = error.response?.data || error.message;
+			console.error('Ошибка обновления данных пользователя:', payload);
 			return null;
 		}
 	};
@@ -110,7 +132,7 @@ export const useProfile = (targetProfileId?: number) => {
 				setUserData(updatedUser);
 			}
 			return updatedUser;
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Failed to update profile:', error);
 			return null;
 		}

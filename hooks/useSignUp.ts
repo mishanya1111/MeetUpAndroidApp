@@ -36,11 +36,17 @@ export const useSignUp = () => {
 			console.log('Give date');
 			saveDate(response.data);
 			console.log('Registration successful');
-			router.push(PROFILE);
-		} catch (error) {
-			console.log('Registration error:', error.response?.data);
+			router.push(PROFILE as any);
+		} catch (error: unknown) {
+			const data = axios.isAxiosError(error) ? error.response?.data : undefined;
+			console.log('Registration error:', data);
 
-			const data = error.response?.data;
+			if (data?.errors?.[0]?.code === 'not_authenticated') {
+				setErrorMessage(
+					'Registration is currently unavailable on the server.'
+				);
+				return;
+			}
 
 			if (data?.email?.[0] === 'user with this email already exists.') {
 				setErrorMessage(
@@ -57,7 +63,7 @@ export const useSignUp = () => {
 		} finally {
 			setIsPending(false);
 		}
-	}, [formData, router]);
+	}, [formData, router, saveDate]);
 
 	return {
 		formData,

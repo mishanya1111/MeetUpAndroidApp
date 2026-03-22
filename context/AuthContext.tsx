@@ -49,7 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 	const [loading, setLoading] = useState(true);
 
 	const saveToken = useCallback(
-		async newToken => {
+		async (newToken: { refresh: string; access: string }) => {
 			if (token?.access === newToken.access && token?.refresh === newToken.refresh)
 				return;
 

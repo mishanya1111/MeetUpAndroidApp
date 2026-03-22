@@ -22,6 +22,17 @@ import axios from 'axios';
 import { MEETINGS_API_URL } from '@/constant/apiURL';
 import { giveConfig } from '@/utils/giveConfig';
 
+function getReadableTextColor(hexColor?: string) {
+	if (!hexColor || typeof hexColor !== 'string') return '#fff';
+	const cleaned = hexColor.replace('#', '');
+	if (!/^[0-9a-fA-F]{6}$/.test(cleaned)) return '#fff';
+	const r = parseInt(cleaned.slice(0, 2), 16);
+	const g = parseInt(cleaned.slice(2, 4), 16);
+	const b = parseInt(cleaned.slice(4, 6), 16);
+	const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+	return brightness >= 150 ? '#111' : '#fff';
+}
+
 const MeetupDetails = () => {
 	const { token } = useAuth();
 	const router = useRouter();
@@ -140,6 +151,40 @@ const MeetupDetails = () => {
 					Date: {formattedDate}
 				</Text>
 
+				{typeof meetup?.duration === 'number' ? (
+					<Text style={[styles.date, { color: descriptionColor }]}>
+						Duration: {Math.round(meetup.duration)} h
+					</Text>
+				) : null}
+
+				{Array.isArray(meetup?.tags) && meetup.tags.length ? (
+					<View style={styles.tagsRow}>
+						<Text style={[styles.date, { color: descriptionColor }]}>Tags:</Text>
+						<View style={styles.tagsWrap}>
+							{meetup.tags
+								.filter((t: any) => t?.name)
+								.map((t: any) => (
+									<View
+										key={String(t.id ?? t.name)}
+										style={[
+											styles.tagChip,
+											{ backgroundColor: t?.color || '#3a6ff7' }
+										]}
+									>
+										<Text
+											style={[
+												styles.tagChipText,
+												{ color: getReadableTextColor(t?.color) }
+											]}
+										>
+											{t.name}
+										</Text>
+									</View>
+								))}
+						</View>
+					</View>
+				) : null}
+
 				<Text style={[styles.signed, { color: descriptionColor }]}>
 					Already signed: {meetup?.attendees_count || 0}
 				</Text>
@@ -216,6 +261,23 @@ const styles = StyleSheet.create({
 	},
 	container: {
 		padding: 16
+	},
+	tagsRow: {
+		marginTop: 6
+	},
+	tagsWrap: {
+		flexDirection: 'row',
+		flexWrap: 'wrap',
+		gap: 8,
+		marginTop: 6
+	},
+	tagChip: {
+		borderRadius: 999,
+		paddingVertical: 2,
+		paddingHorizontal: 8
+	},
+	tagChipText: {
+		fontSize: 12
 	},
 	loader: {
 		flex: 1,
