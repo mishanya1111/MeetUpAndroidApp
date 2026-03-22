@@ -112,12 +112,10 @@ interface FilterBarProps {
 	searchQuery: string;
 	startDate: string | null;
 	endDate: string | null;
-	isOnline: boolean | null;
 	tagIds: number[];
 	setSearchQuery: (query: string) => void;
 	setStartDate: (date: string | null) => void;
 	setEndDate: (date: string | null) => void;
-	setIsOnline: (isOnline: boolean | null) => void;
 	setTagIds: (tagIds: number[]) => void;
 	applyFilters: () => void;
 	runAiSearch: (query: string) => Promise<void>;
@@ -128,12 +126,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
 	searchQuery,
 	startDate,
 	endDate,
-	isOnline,
 	tagIds,
 	setSearchQuery,
 	setStartDate,
 	setEndDate,
-	setIsOnline,
 	setTagIds,
 	applyFilters,
 	runAiSearch,
@@ -238,7 +234,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
 		},
 		buttonSecondaryText: {
 			padding: 8,
-			color: text,
+			color: BUTTON_TEXT,
 			textAlign: 'center'
 		}
 	});
@@ -354,45 +350,6 @@ const FilterBar: React.FC<FilterBarProps> = ({
 
 			{showAdvancedFilters ? (
 				<View style={{ gap: 12 }}>
-					<View style={styles.filterRow}>
-						<TouchableOpacity onPress={() => setIsOnline(null)}>
-							<View style={[styles.chip, isOnline === null && styles.chipSelected]}>
-								<Text
-									style={[
-										styles.chipText,
-										isOnline === null && styles.chipTextSelected
-									]}
-								>
-									All
-								</Text>
-							</View>
-						</TouchableOpacity>
-						<TouchableOpacity onPress={() => setIsOnline(true)}>
-							<View style={[styles.chip, isOnline === true && styles.chipSelected]}>
-								<Text
-									style={[
-										styles.chipText,
-										isOnline === true && styles.chipTextSelected
-									]}
-								>
-									Online
-								</Text>
-							</View>
-						</TouchableOpacity>
-						<TouchableOpacity onPress={() => setIsOnline(false)}>
-							<View style={[styles.chip, isOnline === false && styles.chipSelected]}>
-								<Text
-									style={[
-										styles.chipText,
-										isOnline === false && styles.chipTextSelected
-									]}
-								>
-									Offline
-								</Text>
-							</View>
-						</TouchableOpacity>
-					</View>
-
 					<View style={{ gap: 8 }}>
 						<Text style={{ color: text }}>
 							Tags{tagsLoading ? ' (loading...)' : ''}

@@ -29,7 +29,6 @@ interface SearchParams {
 	query: string;
 	startDate: string | null;
 	endDate: string | null;
-	isOnline: boolean | null;
 	tagIds: number[];
 }
 
@@ -43,7 +42,6 @@ export const useMeetups = (
 		query: '',
 		startDate: null,
 		endDate: null,
-		isOnline: null,
 		tagIds: []
 	});
 	const [loading, setLoading] = useState<boolean>(true);
@@ -77,8 +75,6 @@ export const useMeetups = (
 			params.set('datetime_beg__gt', toStartDateTime(searchParams.startDate));
 		if (searchParams.endDate)
 			params.set('datetime_beg__lt', toEndDateTime(searchParams.endDate));
-		if (searchParams.isOnline !== null)
-			params.set('is_online', searchParams.isOnline ? 'true' : 'false');
 		searchParams.tagIds.forEach(id => params.append('tags', String(id)));
 
 		try {
@@ -109,10 +105,6 @@ export const useMeetups = (
 
 	const setEndDate = (date: string | null) => {
 		setSearchParams(prev => ({ ...prev, endDate: date }));
-	};
-
-	const setIsOnline = (isOnline: boolean | null) => {
-		setSearchParams(prev => ({ ...prev, isOnline }));
 	};
 
 	const setTagIds = (tagIds: number[]) => {
@@ -237,8 +229,6 @@ export const useMeetups = (
 						'datetime_beg__lt',
 						toEndDateTime(searchParams.endDate)
 					);
-				if (searchParams.isOnline !== null)
-					paramsForAi.set('is_online', searchParams.isOnline ? 'true' : 'false');
 				searchParams.tagIds.forEach(id => paramsForAi.append('tags', String(id)));
 
 				const aiData = await fetchFunction(paramsForAi);
@@ -428,7 +418,6 @@ export const useMeetups = (
 		setSearchQuery,
 		setStartDate,
 		setEndDate,
-		setIsOnline,
 		setTagIds,
 		applyFilters,
 		runAiSearch,

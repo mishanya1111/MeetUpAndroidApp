@@ -135,7 +135,9 @@ export default function Profile({ targetProfileId }: ProfileProps) {
 		content = (
 			<>
 				<ThemeToggleButton />
-				<LoginNeededContainer message="You need to log in to view your profile and create meetups." />
+				<View style={styles.contentAfterToggle}>
+					<LoginNeededContainer message="You need to log in to view your profile and create meetups." />
+				</View>
 			</>
 		);
 	} else if (isOwnProfile) {
@@ -143,97 +145,98 @@ export default function Profile({ targetProfileId }: ProfileProps) {
 			<>
 				<ThemeToggleButton />
 
-				{/* Аватар + кнопка */}
-				<View style={styles.avatarContainer}>
-					{photoUri && (
-						<Image source={{ uri: photoUri }} style={styles.profileImage} />
-					)}
+				<View style={styles.contentAfterToggle}>
+					<View style={styles.avatarContainer}>
+						{photoUri && (
+							<Image source={{ uri: photoUri }} style={styles.profileImage} />
+						)}
+
+						<TouchableOpacity
+							style={[styles.uploadButton, { backgroundColor: buttonBg }]}
+							onPress={handlePickImage}
+						>
+							<Text style={[styles.uploadButtonText, { color: '#f2f2f2' }]}>
+								Upload photo
+							</Text>
+						</TouchableOpacity>
+					</View>
+
+					<View style={styles.infoContainer}>
+						<Text style={[styles.label, { color: text }]}>Name:</Text>
+						<TextInput
+							style={styles.input}
+							value={editableUserData.first_name || ''}
+							onChangeText={val => handleChange('first_name', val)}
+							placeholder="Enter your first name"
+							placeholderTextColor="#aaa"
+						/>
+						<Text style={[styles.label, { color: text }]}>Last Name:</Text>
+						<TextInput
+							style={styles.input}
+							value={editableUserData.last_name || userData?.last_name || ''}
+							onChangeText={val => handleChange('last_name', val)}
+							placeholder="Enter your last name"
+							placeholderTextColor="#aaa"
+						/>
+
+						<Text style={[styles.label, { color: text }]}>Username:</Text>
+						<TextInput
+							style={styles.input}
+							value={editableUserData.username || userData?.username || ''}
+							onChangeText={val => handleChange('username', val)}
+							placeholder="Enter your username"
+							placeholderTextColor="#aaa"
+						/>
+
+						<Text style={[styles.label, { color: text }]}>Email:</Text>
+						<TextInput
+							style={styles.input}
+							value={editableUserData.email || userData?.email || ''}
+							onChangeText={val => handleChange('email', val)}
+							placeholder="Enter your email"
+							keyboardType="email-address"
+							placeholderTextColor="#aaa"
+						/>
+
+						<Text style={[styles.label, { color: text }]}>About Me:</Text>
+						<TextInput
+							style={[styles.input, styles.descriptionInput]}
+							value={
+								editableUserData.user_description ||
+								userData?.user_description ||
+								''
+							}
+							onChangeText={val => handleChange('user_description', val)}
+							placeholder="Enter your profile description"
+							multiline
+							placeholderTextColor="#aaa"
+						/>
+					</View>
 
 					<TouchableOpacity
-						style={[styles.uploadButton, { backgroundColor: buttonBg }]}
-						onPress={handlePickImage}
+						style={[styles.saveButton, isSaving && styles.disabledButton]}
+						onPress={handleSaveChanges}
+						disabled={isSaving}
 					>
-						<Text style={[styles.uploadButtonText, { color: '#f2f2f2' }]}>
-							Upload photo
+						<Text style={styles.saveButtonText}>
+							{isSaving ? 'Pending...' : 'Save Changes'}
 						</Text>
 					</TouchableOpacity>
+
+					<TouchableOpacity
+						style={styles.createButton}
+						onPress={() => router.push(CREATE_MEETUPS as any)}
+					>
+						<Text style={styles.createButtonText}>Create Meetup</Text>
+					</TouchableOpacity>
+
+					<TouchableOpacity
+						onPress={() => setShowModal(true)}
+						style={styles.logoutButton}
+					>
+						<Text style={styles.logoutButtonText}>Logout</Text>
+					</TouchableOpacity>
 				</View>
-
-				{/* Поля редактируемые */}
-				<View style={styles.infoContainer}>
-					<Text style={[styles.label, { color: text }]}>Name:</Text>
-					<TextInput
-						style={styles.input}
-						value={editableUserData.first_name || ''}
-						onChangeText={val => handleChange('first_name', val)}
-						placeholder="Enter your first name"
-						placeholderTextColor="#aaa"
-					/>
-					<Text style={[styles.label, { color: text }]}>Last Name:</Text>
-					<TextInput
-						style={styles.input}
-						value={editableUserData.last_name || userData?.last_name || ''}
-						onChangeText={val => handleChange('last_name', val)}
-						placeholder="Enter your last name"
-						placeholderTextColor="#aaa"
-					/>
-
-					<Text style={[styles.label, { color: text }]}>Username:</Text>
-					<TextInput
-						style={styles.input}
-						value={editableUserData.username || userData?.username || ''}
-						onChangeText={val => handleChange('username', val)}
-						placeholder="Enter your username"
-						placeholderTextColor="#aaa"
-					/>
-
-					<Text style={[styles.label, { color: text }]}>Email:</Text>
-					<TextInput
-						style={styles.input}
-						value={editableUserData.email || userData?.email || ''}
-						onChangeText={val => handleChange('email', val)}
-						placeholder="Enter your email"
-						keyboardType="email-address"
-						placeholderTextColor="#aaa"
-					/>
-
-					<Text style={[styles.label, { color: text }]}>About Me:</Text>
-					<TextInput
-						style={[styles.input, styles.descriptionInput]}
-						value={
-							editableUserData.user_description || userData?.user_description || ''
-						}
-						onChangeText={val => handleChange('user_description', val)}
-						placeholder="Enter your profile description"
-						multiline
-						placeholderTextColor="#aaa"
-					/>
-
-				</View>
-
-				<TouchableOpacity
-					style={[styles.saveButton, isSaving && styles.disabledButton]}
-					onPress={handleSaveChanges}
-					disabled={isSaving}
-				>
-					<Text style={styles.saveButtonText}>
-						{isSaving ? 'Pending...' : 'Save Changes'}
-					</Text>
-				</TouchableOpacity>
-
-				<TouchableOpacity
-					style={styles.createButton}
-					onPress={() => router.push(CREATE_MEETUPS as any)}
-				>
-					<Text style={styles.createButtonText}>Create Meetup</Text>
-				</TouchableOpacity>
-
-				<TouchableOpacity
-					onPress={() => setShowModal(true)}
-					style={styles.logoutButton}
-				>
-					<Text style={styles.logoutButtonText}>Logout</Text>
-				</TouchableOpacity>
 			</>
 		);
 	} else {
@@ -314,6 +317,11 @@ const styles = StyleSheet.create({
 	container: {
 		alignItems: 'center',
 		padding: 20
+	},
+	contentAfterToggle: {
+		marginTop: 50,
+		width: '100%',
+		alignItems: 'center'
 	},
 	avatarContainer: {
 		alignItems: 'center',

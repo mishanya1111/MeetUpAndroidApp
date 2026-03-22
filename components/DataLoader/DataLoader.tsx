@@ -5,12 +5,14 @@ import { useMeetups } from '@/components/DataLoader/useMeetups';
 import FilterBar from '@/components/DataLoader/FilterBar';
 import MeetupCard from '@/components/MeetupCard';
 import Loader from '@/components/Loader';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface DataLoaderProps {
 	fetchFunction: (params: URLSearchParams) => Promise<any>;
 }
 
 const DataLoader: React.FC<DataLoaderProps> = ({ fetchFunction }) => {
+	const { text, description, headerFooter, buttonBorder } = useThemeColors();
 	const {
 		meetups,
 		loading,
@@ -18,7 +20,6 @@ const DataLoader: React.FC<DataLoaderProps> = ({ fetchFunction }) => {
 		setSearchQuery,
 		setStartDate,
 		setEndDate,
-		setIsOnline,
 		setTagIds,
 		applyFilters,
 		runAiSearch,
@@ -38,12 +39,10 @@ const DataLoader: React.FC<DataLoaderProps> = ({ fetchFunction }) => {
 					searchQuery={searchParams.query}
 					startDate={searchParams.startDate}
 					endDate={searchParams.endDate}
-					isOnline={searchParams.isOnline}
 					tagIds={searchParams.tagIds}
 					setSearchQuery={setSearchQuery}
 					setStartDate={setStartDate}
 					setEndDate={setEndDate}
-					setIsOnline={setIsOnline}
 					setTagIds={setTagIds}
 					applyFilters={applyFilters}
 					runAiSearch={runAiSearch}
@@ -55,17 +54,29 @@ const DataLoader: React.FC<DataLoaderProps> = ({ fetchFunction }) => {
 				{loading ? (
 					<Loader />
 				) : error ? (
-					<View style={styles.errorBox}>
-						<Text style={styles.errorTitle}>Could not load meetups</Text>
-						<Text style={styles.errorText}>{error}</Text>
+					<View
+						style={[
+							styles.box,
+							{ backgroundColor: headerFooter, borderColor: buttonBorder }
+						]}
+					>
+						<Text style={[styles.title, { color: text }]}>
+							Could not load meetups
+						</Text>
+						<Text style={[styles.body, { color: description }]}>{error}</Text>
 						<TouchableOpacity onPress={applyFilters} style={styles.retryButton}>
 							<Text style={styles.retryText}>Retry</Text>
 						</TouchableOpacity>
 					</View>
 				) : meetups.length === 0 ? (
-					<View style={styles.emptyBox}>
-						<Text style={styles.emptyTitle}>No meetups found</Text>
-						<Text style={styles.emptyText}>
+					<View
+						style={[
+							styles.box,
+							{ backgroundColor: headerFooter, borderColor: buttonBorder }
+						]}
+					>
+						<Text style={[styles.title, { color: text }]}>No meetups found</Text>
+						<Text style={[styles.body, { color: description }]}>
 							Try changing filters or use AI Search/Recommend.
 						</Text>
 					</View>
@@ -92,20 +103,18 @@ const styles = StyleSheet.create({
 	listContainer: {
 		flex: 1
 	},
-	errorBox: {
+	box: {
 		margin: 16,
 		padding: 16,
 		borderRadius: 12,
-		backgroundColor: 'rgba(255,255,255,0.06)'
+		borderWidth: 1
 	},
-	errorTitle: {
+	title: {
 		fontSize: 16,
 		fontWeight: '600',
-		marginBottom: 8,
-		color: '#f2f2f2'
+		marginBottom: 8
 	},
-	errorText: {
-		color: '#d0d0d0',
+	body: {
 		marginBottom: 12
 	},
 	retryButton: {
@@ -118,21 +127,6 @@ const styles = StyleSheet.create({
 	retryText: {
 		color: '#fff',
 		fontWeight: '600'
-	},
-	emptyBox: {
-		margin: 16,
-		padding: 16,
-		borderRadius: 12,
-		backgroundColor: 'rgba(255,255,255,0.06)'
-	},
-	emptyTitle: {
-		fontSize: 16,
-		fontWeight: '600',
-		marginBottom: 6,
-		color: '#f2f2f2'
-	},
-	emptyText: {
-		color: '#d0d0d0'
 	}
 });
 
