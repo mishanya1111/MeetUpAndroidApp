@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
 import axios from 'axios';
@@ -22,9 +22,8 @@ export default function MyMeetupsSubscriber() {
 	}
 
 	// Функция для загрузки данных встреч
-	const fetchWithToken = async (params: URLSearchParams) => {
+	const fetchWithToken = useCallback(async (params: URLSearchParams) => {
 		const queryParams = params.toString();
-		console.log('userID' + userID);
 		console.log(
 			'url in subscriber' +
 				`${USER_API_URL}${userID}/${MEETINGS_SIGNED}?` +
@@ -34,13 +33,8 @@ export default function MyMeetupsSubscriber() {
 			`${USER_API_URL}${userID}/${MEETINGS_SIGNED}/?${queryParams}`,
 			giveConfig(token)
 		);
-
-		/*if (response) {
-			console.log(response)
-		}*/
-		//response.data.results = response.data; // как влад починит - убрать!!!!!!!
 		return response.data;
-	};
+	}, [userID, token]);
 
 	return (
 		<BackgroundView>

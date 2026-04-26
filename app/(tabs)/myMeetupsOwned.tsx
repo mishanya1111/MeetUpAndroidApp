@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
 import axios from 'axios';
@@ -25,9 +25,8 @@ export default function MyMeetupsOwned() {
 	}
 
 	// Функция для загрузки данных встреч
-	const fetchWithToken = async (params: URLSearchParams) => {
+	const fetchWithToken = useCallback(async (params: URLSearchParams) => {
 		const queryParams = params.toString();
-		//console.log('userID' + userID);
 		console.log(
 			'url in owned:' + `${USER_API_URL}${userID}/${MEETINGS_OWNED}?` + queryParams
 		);
@@ -35,14 +34,8 @@ export default function MyMeetupsOwned() {
 			`${USER_API_URL}${userID}/${MEETINGS_OWNED}/?${queryParams}`,
 			giveConfig(token)
 		);
-
-		/*if (response) {
-			console.log(response)
-		}*/
-		//response.data.results = response.data; // как влад починит - убрать!!!!!!!
-		//console.log(response.data.results.map(it => it.title));
 		return response.data;
-	};
+	}, [userID, token]);
 
 	return (
 		<BackgroundView>

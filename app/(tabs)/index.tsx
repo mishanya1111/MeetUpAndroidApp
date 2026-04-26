@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
 import axios from 'axios';
@@ -7,12 +7,11 @@ import { ThemedText } from '@/components/styleComponent/ThemedText';
 import { MEETINGS_API_URL } from '@/constant/apiURL';
 
 export default function HomeScreen() {
-	const fetchWithToken = async (params: URLSearchParams) => {
+	const fetchWithToken = useCallback(async (params: URLSearchParams) => {
 		const queryParams = params.toString();
 		const response = await axios.get(`${MEETINGS_API_URL}?${queryParams}`);
-		//console.log(response.data.results.length);
 		return response.data;
-	};
+	}, []);
 
 	return (
 		<BackgroundView>

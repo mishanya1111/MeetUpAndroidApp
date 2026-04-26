@@ -190,12 +190,12 @@ export default function Profile({ targetProfileId }: ProfileProps) {
 
 						<Text style={[styles.label, { color: text }]}>Email:</Text>
 						<TextInput
-							style={styles.input}
+							style={[styles.input, { color: '#888', backgroundColor: '#f0f0f0' }]}
 							value={editableUserData.email || userData?.email || ''}
-							onChangeText={val => handleChange('email', val)}
-							placeholder="Enter your email"
-							keyboardType="email-address"
+							placeholder="Email"
 							placeholderTextColor="#aaa"
+							editable={false}
+							selectTextOnFocus={false}
 						/>
 
 						<Text style={[styles.label, { color: text }]}>About Me:</Text>

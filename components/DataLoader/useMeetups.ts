@@ -79,8 +79,14 @@ export const useMeetups = (
 
 		try {
 			const data = await fetchFunction(params);
+			console.log('=== fetchData response ===', JSON.stringify(data)?.slice(0, 300));
 			if (data?.results) {
 				const mapped = mapResultsToMeetups(data.results);
+				setServerMeetups(mapped);
+				setMeetups(mapped);
+			} else if (Array.isArray(data)) {
+				// бэкенд вернул массив напрямую, без обёртки results
+				const mapped = mapResultsToMeetups(data);
 				setServerMeetups(mapped);
 				setMeetups(mapped);
 			}
@@ -92,7 +98,14 @@ export const useMeetups = (
 	}, [fetchFunction, searchParams]);
 
 	useEffect(() => {
-		fetchData();
+		if (shouldRefetch) {
+			fetchData();
+			// страховочный повторный запрос через 3 сек — на случай медленного сервера
+			const timer = setTimeout(() => fetchData(), 3000);
+			return () => clearTimeout(timer);
+		} else {
+			fetchData();
+		}
 	}, [fetchData, shouldRefetch]);
 
 	const setSearchQuery = (query: string) => {

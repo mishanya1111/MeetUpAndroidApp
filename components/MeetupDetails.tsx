@@ -8,19 +8,19 @@ import {
 	StyleSheet,
 	ScrollView,
 	TouchableOpacity,
-	Alert
+	Alert,
+	Share
 } from 'react-native';
 import { useMeetupDetails } from '@/hooks/useMeetupDetails';
 import { useRouter } from 'expo-router';
 import { BackgroundView } from '@/components/styleComponent/BackgroundView';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { useAuth } from '@/context/AuthContext';
-import HeaderWithTitle from '@/components/headerWithTitle';
 import Loader from '@/components/Loader';
-import { LoginNeededContainer } from '@/components/LoginNeededContainer';
 import axios from 'axios';
 import { MEETINGS_API_URL } from '@/constant/apiURL';
 import { giveConfig } from '@/utils/giveConfig';
+import { Ionicons } from '@expo/vector-icons';
 
 function getReadableTextColor(hexColor?: string) {
 	if (!hexColor || typeof hexColor !== 'string') return '#fff';
@@ -54,13 +54,7 @@ const MeetupDetails = () => {
 	} = useMeetupDetails();
 
 	if (!token) {
-		return (
-			<BackgroundView>
-				<HeaderWithTitle title="Meetup details" />
-
-				<LoginNeededContainer message="You need to log in to view meetup details." />
-			</BackgroundView>
-		);
+		// не блокируем просмотр — незалогиненные видят детали, но без кнопок
 	}
 
 	if (loading) {
@@ -110,9 +104,41 @@ const MeetupDetails = () => {
 		]);
 	};
 
+	const handleShare = async () => {
+		try {
+			const meetupUrl = `https://qbit-meetup.web.app/meetup-details/${meetup?.id}`;
+			const lines: string[] = [];
+			lines.push(`📅 ${meetup?.title || 'Meetup'}`);
+			lines.push(`🗓 ${formattedDate}`);
+			if (typeof meetup?.duration === 'number') {
+				lines.push(`⏱ Duration: ${Math.round(meetup.duration)} h`);
+			}
+			if (meetup?.description) {
+				lines.push(meetup.description);
+			}
+			lines.push('');
+			lines.push(`🔗 ${meetupUrl}`);
+
+			await Share.share({ message: lines.join('\n') });
+		} catch (err) {
+			console.error('Share error:', err);
+		}
+	};
+
 	return (
 		<BackgroundView>
-			<HeaderWithTitle title={meetup?.title || 'Meetup Details'} />
+			{/* Хедер: кнопка назад + заголовок (flex:1, обрезается) + кнопка Share */}
+			<View style={styles.headerRow}>
+				<TouchableOpacity onPress={() => router.back()} style={styles.headerBack}>
+					<Ionicons name="arrow-back" size={24} color={text} />
+				</TouchableOpacity>
+				<Text style={[styles.headerTitle, { color: text }]} numberOfLines={1} ellipsizeMode="tail">
+					{meetup?.title || 'Meetup Details'}
+				</Text>
+				<TouchableOpacity onPress={handleShare} style={styles.headerShare}>
+					<Ionicons name="share-outline" size={24} color={text} />
+				</TouchableOpacity>
+			</View>
 
 			<ScrollView contentContainerStyle={styles.container}>
 				<Image
@@ -193,7 +219,7 @@ const MeetupDetails = () => {
 					{meetup?.description || 'No description available.'}
 				</Text>
 
-				{userID === meetup?.author_id ? (
+				{token && userID === meetup?.author_id ? (
 					<View>
 						<TouchableOpacity
 							style={[styles.button, styles.editButton]}
@@ -211,7 +237,7 @@ const MeetupDetails = () => {
 							<Text style={styles.buttonText}>Delete Meetup</Text>
 						</TouchableOpacity>
 					</View>
-				) : isFavorite !== null ? (
+				) : token && isFavorite !== null ? (
 					isFavorite ? (
 						<TouchableOpacity
 							style={[styles.button, styles.unsubscribeButton]}
@@ -227,11 +253,11 @@ const MeetupDetails = () => {
 							<Text style={styles.buttonText}>Subscribe</Text>
 						</TouchableOpacity>
 					)
-				) : (
+				) : token ? (
 					<Text style={{ color: descriptionColor }}>
 						Loading subscription status...
 					</Text>
-				)}
+				) : null}
 			</ScrollView>
 		</BackgroundView>
 	);
@@ -247,17 +273,23 @@ const styles = StyleSheet.create({
 		fontSize: 18,
 		marginBottom: 12
 	},
-	header: {
+	headerRow: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		padding: 16
+		paddingHorizontal: 8,
+		paddingVertical: 8
 	},
-	backButton: {
-		marginRight: 8
+	headerBack: {
+		padding: 8
 	},
 	headerTitle: {
-		fontSize: 20,
-		fontWeight: 'bold'
+		flex: 1,
+		fontSize: 18,
+		fontWeight: 'bold',
+		marginHorizontal: 4
+	},
+	headerShare: {
+		padding: 8
 	},
 	container: {
 		padding: 16

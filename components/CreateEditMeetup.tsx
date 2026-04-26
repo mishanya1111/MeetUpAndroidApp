@@ -16,7 +16,8 @@ import {
 	StyleProp,
 	TextStyle,
 	ViewStyle,
-	Alert
+	Alert,
+	KeyboardAvoidingView
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
@@ -129,8 +130,8 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 	const [formData, setFormData] = useState({
 		title: '',
 		description: '',
-		datetime_beg: '',
-		duration: '',
+		datetime_beg: '',        // пустая строка — пользователь обязан выбрать вручную
+		duration: '1',           // по умолчанию 1 час
 		link: '',
 		image: null as null | { uri: string; type?: string; name?: string },
 		tag_ids: [] as number[]
@@ -279,15 +280,42 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 			const durationNum = Number.parseInt(String(formData.duration || ''), 10);
 			if (!Number.isFinite(durationNum) || durationNum <= 0) {
 				Alert.alert('Error', 'Please enter a valid duration in hours.');
+				setLoading(false);
 				return;
 			}
 			const durationForApi = durationNum;
 
+			// Дата обязательна — пользователь должен выбрать вручную
+			if (!formData.datetime_beg) {
+				Alert.alert('Error', 'Please select the start date and time for the meetup.');
+				setLoading(false);
+				return;
+			}
+
+			// Дата должна быть минимум на 5 минут в будущем
+			const selectedDate = new Date(formData.datetime_beg);
+			const minAllowedDate = new Date(Date.now() + 5 * 60 * 1000);
+			if (selectedDate < minAllowedDate) {
+				Alert.alert('Error', 'The start time must be at least 5 minutes in the future.');
+				setLoading(false);
+				return;
+			}
+
+			const datetimeToSend = formData.datetime_beg;
+
+			// Нормализуем ссылку: добавляем https:// если нет протокола
+			const normalizeUrl = (url: string): string => {
+				const trimmed = url.trim();
+				if (!trimmed) return trimmed;
+				if (/^https?:\/\//i.test(trimmed)) return trimmed;
+				return `https://${trimmed}`;
+			};
+
 			const payload = new FormData();
 			payload.append('title', formData.title);
 			payload.append('description', formData.description);
-			payload.append('datetime_beg', formData.datetime_beg);
-			payload.append('link', formData.link);
+			payload.append('datetime_beg', datetimeToSend);
+			payload.append('link', normalizeUrl(formData.link));
 			payload.append('duration', String(durationForApi));
 			formData.tag_ids.forEach(id => payload.append('tag_ids', String(id)));
 
@@ -304,15 +332,29 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 
 			const config = giveConfigWithContentType(token);
 
+			console.log('=== SUBMIT MEETUP ===');
+			console.log('datetime_beg:', datetimeToSend);
+			console.log('title:', formData.title);
+			console.log('duration:', durationForApi);
+			console.log('link:', normalizeUrl(formData.link));
+			console.log('tag_ids:', formData.tag_ids);
+			console.log('token:', token?.access ? 'present' : 'MISSING');
+
 			if (isEditing) {
-				await axios.patch(`${MEETINGS_API_URL}${meetupId}/`, payload, config);
+				const res = await axios.patch(`${MEETINGS_API_URL}${meetupId}/`, payload, config);
+				console.log('PATCH response:', res.status, res.data);
+				router.back();
+				// небольшая задержка — даём серверу время обработать запрос
+				setTimeout(() => triggerRefetch(), 1500);
 				Alert.alert('Success', 'Meetup successfully updated!');
 			} else {
-				await axios.post(MEETINGS_API_URL, payload, config);
+				const res = await axios.post(MEETINGS_API_URL, payload, config);
+				console.log('POST response:', res.status, res.data);
+				router.back();
+				// небольшая задержка — даём серверу время обработать запрос
+				setTimeout(() => triggerRefetch(), 1500);
 				Alert.alert('Success', 'Meetup successfully created!');
 			}
-			triggerRefetch();
-			router.back();
 		} catch (err: any) {
 			console.error('ERROR RESPONSE:', err.response?.data || err.message);
 			const serverMessage =
@@ -351,7 +393,15 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 
 	return (
 		<BackgroundView>
-			<ScrollView contentContainerStyle={styles.container}>
+			<KeyboardAvoidingView
+				style={{ flex: 1 }}
+				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
+			>
+			<ScrollView
+				contentContainerStyle={styles.container}
+				keyboardShouldPersistTaps="handled"
+			>
 				<View style={styles.headerContainer}>
 					<HeaderWithTitle title={isEditing ? 'Edit Meetup' : 'Create Meetup'} />
 				</View>
@@ -431,7 +481,9 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 					</View>
 				) : null}
 
-				<Text style={[styles.label, { color: text }]}>Start Date and Time:</Text>
+				<View style={{ height: 16 }} />
+
+				<Text style={[styles.label, { color: text }]}>Start Date and Time: <Text style={{ color: formData.datetime_beg ? 'transparent' : '#e05252', fontSize: 12, fontWeight: 'normal' }}>{formData.datetime_beg ? '' : '(required — please select)'}</Text></Text>
 				{Platform.OS === 'ios' && (
 					<View
 						style={{
@@ -500,10 +552,10 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 							}
 							style={styles.input}
 						>
-							<Text style={{ color: '#000' }}>
+							<Text style={{ color: formData.datetime_beg ? '#000' : '#aaa' }}>
 								{formData.datetime_beg
 									? new Date(formData.datetime_beg).toLocaleString()
-									: 'Pick date and time'}
+									: 'Tap to select date and time'}
 							</Text>
 						</Pressable>
 					</>
@@ -568,7 +620,13 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 				/>
 
 				{formData.link ? (
-					<TouchableOpacity onPress={() => Linking.openURL(formData.link)}>
+					<TouchableOpacity
+						onPress={() => {
+							const url = formData.link.trim();
+							const normalized = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+							Linking.openURL(normalized);
+						}}
+					>
 						<Text style={[styles.link, { color: '#3a6ff7' }]}>Open Link</Text>
 					</TouchableOpacity>
 				) : (
@@ -597,6 +655,7 @@ export default function CreateEditMeetup({ meetupId }: Props) {
 
 				{error && <Text style={styles.errorText}>{error}</Text>}
 			</ScrollView>
+			</KeyboardAvoidingView>
 		</BackgroundView>
 	);
 }
